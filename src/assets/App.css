@@ -43,3 +43,13 @@ main {
   width: 100dvw;
   height: 100dvh;
 }
+
+.body div {
+  position: relative;
+}
+
+.move {
+  position: absolute;
+  background-color: rgb(214, 214, 214);
+  border-radius: 5px;
+}

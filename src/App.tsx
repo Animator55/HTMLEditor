@@ -13,7 +13,7 @@ const defaultHTML: htmlComponent = {
   comp_id: "Body",
   textContent: null,
   classes: "",
-  style: { margin: "5px" },
+  style: { },
   components: [
     {
       comp_id: "1", classes: "",
@@ -23,13 +23,13 @@ const defaultHTML: htmlComponent = {
           comp_id: "1-0-0", classes: "",
           components: [],
           textContent: "Div",
-          style: { background: "red", display: "flex", width: "2rem", height: "3rem" },
+          style: { background: "blue", padding: "1rem", display: "flex", width: "2rem", height: "3rem" },
         }],
         textContent: "Div",
-        style: { background: "red", display: "flex", width: "2rem", height: "3rem" },
+        style: { background: "red", padding: "1rem", display: "flex" },
       }],
       textContent: "Div",
-      style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem", height: "3rem" },
+      style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem" },
     }
   ]
 }
@@ -42,15 +42,18 @@ export default function App({ }: Props) {
   const searchInHTML =(selected: string|undefined)=>{
     if(!selected) return 
     let splited = selected.split("-")
-    let obj = html
-    let first = true
+    let obj = html.components[parseInt(splited[0])-1]
+    splited.shift()
     while (splited.length !== 0) {
-      let val = first ? parseInt(splited[0])-1 : parseInt(splited[0])
+      let val = parseInt(splited[0])
       obj = obj.components[val]
       splited.shift()
     }
     return obj
   }
+  React.useEffect(()=>{
+    if(!selected) return
+  }, [selected])
 
   return <main>
     <SideBar selected={searchInHTML(selected)}/>

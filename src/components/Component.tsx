@@ -1,4 +1,7 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { drag } from '../logic/resizeDrag'
 import { htmlComponent } from '../vite-env'
+import { faArrows } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
     props: htmlComponent
@@ -22,10 +25,16 @@ export default function Component({props,setSelected}: Props) {
             accessKey={completeAccessKey}
             className={module.classes}
             style={module.style}
-            onClick={()=>{
-                setSelected(completeAccessKey)
+            onClick={(e)=>{
+                let target = e.target as HTMLElement
+                if(target)setSelected(target.accessKey)
             }}
         >
+            <span className='move'
+                onMouseDown={drag}><FontAwesomeIcon icon={faArrows}/></span>
+            {/* <span className='resize'
+                onMouseDown={drag}
+            ></span> */}
             {module.textContent}
             <Component setSelected={setSelected} props={{...module, parentIndex: completeAccessKey}}/>
         </div>
