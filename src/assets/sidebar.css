@@ -1,0 +1,137 @@
+.side-bar {
+    height: 100dvh;
+    min-width: 215px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background-color: var(--clight);
+    text-align: center;
+    border-bottom-right-radius: 20px;
+    box-sizing: border-box;
+    /* box-shadow: 0 9px 32px -6px var(--clight); */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: all 300ms;
+    z-index: 3;
+}
+
+.side-bar-drag {
+    width: 5px;
+    height: 100vh;
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    cursor: e-resize;
+}
+.side-bar-drag:hover {
+    background-color: var(--cpink);
+}
+
+.side-bar>* {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+}
+
+.side-bar > :last-child {
+    position: relative;
+    height: -webkit-fill-available;
+}
+
+.side-bar.edit {
+    background-color: var(--cpurple2);
+    transition: all 300ms;
+    min-width: 180px;
+    position: relative;
+    padding-top: 5%;
+}
+.side-bar:not(.edit) {
+    padding-left: 0;
+    padding-right: 12px;
+}
+
+.side-bar.edit>div:first-child, .side-bar.edit>div:nth-child(2){
+    flex-direction: row;
+    position: static;
+}
+
+.side-bar span > :first-child {
+    user-select: none;
+    padding: 7px;
+    border-radius: 0 20px 20px 0;
+    background-color: var(--cwhite);
+    font-size: medium;
+    color: var(--cpink);
+}
+
+.side-bar:not(.edit) span > :first-child:hover {
+    background-color: var(--cgray);
+}
+
+.side-bar:not(.edit) .span-column {
+    border-radius: 0 20px 20px 0;
+    background-color: var(--cpurple2);
+}
+
+.side-bar>* a>div,
+.nav-bar a>div {
+    width: -webkit-fill-available;
+}
+
+.side-bar>* a{
+    display: flex;
+    align-items: center;
+    color: var(--cdeep);
+    font-size: medium;
+}
+
+.side-bar-title {
+    margin: 0;
+    text-align: center;
+}
+
+.side-bar.edit .side-bar-title {
+    background-color: var(--cwhite);
+    position: absolute;
+    left: 0px;
+    z-index: 1;
+    top: 8px;
+    width: 93%;
+    border-radius: 0 15px 15px 0;
+    padding: 10px;
+}
+
+.logo {
+    width: 80px;
+    min-height: 80px;
+    margin: 0 auto !important;
+    background: url('../logo.png') center / cover no-repeat;
+}
+
+.side-bar:not(.edit) button {
+    padding: 7px;
+    border-radius: 0 20px 20px 0;
+    background-color: var(--cwhite);
+}
+
+.config-section button {
+    margin-top: 10px;
+}
+
+.side-bar:not(.edit) button:hover {
+    transform: scale(1);
+    background-color: var(--cgray);
+}
+
+.side-bar:not(.edit) .span-column button {
+    background-color: transparent;
+    border-radius: 0;
+}
+
+.side-bar:not(.edit) .span-column button:hover {
+    background-color: var(--clight);
+}
+
+.side-bar.small .btn-expand:hover > :last-child{
+    display: none;
+}

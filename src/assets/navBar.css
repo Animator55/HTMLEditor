@@ -1,0 +1,93 @@
+
+.nav-bar {
+    width: -webkit-fill-available;
+    max-height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    background-color: var(--clight);
+    box-shadow: 0 9px 32px -6px var(--clight);
+    z-index: 3;
+}
+
+.nav-bar > :last-child {
+    margin: 8px 0;
+}
+
+.nav-bar a,
+.nav-bar button {
+    transform: scale(1)!important;
+    display: flex;
+    align-items: center;
+    color: var(--cdeep);
+    font-size: medium;
+}
+
+.nav-bar:empty + .app-cont {
+    height: 100vh;
+}
+
+.nav-bar .btn-span {
+    display: flex;
+    width: 110px;
+    padding: 6px;
+    margin-left: 20px;
+    margin-right: auto;
+    position: relative;
+}
+
+.nav-bar .btn-span > p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-span {
+    border: none;
+    background-color: var(--clight);
+    width: 110px;
+    padding: 0 20px;
+    max-height: 0px;
+    transition: all 300ms;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 2;
+}
+
+.nav-span button {
+    color: var(--cblack);
+    width: 100%;
+}
+
+.nav-span button > p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-span .btn-active:hover {
+    opacity: 1;
+}
+
+.nav-span button:not(.btn-active):hover {
+    background-color: var(--cpurple2);
+}
+
+.nav-span > div {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 175px;
+    background-color: var(--cpurple2);
+    border-radius: 0 0 10px 10px;
+}
+
+.nav-span.expanded {
+    transition: all 300ms;
+    padding-bottom: 25px;
+    border-radius: 0 0 10px 10px;
+    width: 110px;
+    max-height: 200px;
+}

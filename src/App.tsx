@@ -1,76 +1,254 @@
-import React from 'react'
-import SideBar from './components/SideBar'
-import { htmlComponent } from './vite-env'
-import Component from './components/Component'
-
-import "./assets/App.css"
+import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faMinus, faTrash, faHome } from '@fortawesome/free-solid-svg-icons'
+import SideBar from "./components/SideBar";
+import "./assets/editor.css"
+import "./assets/styles.css"
+import "./assets/adminEditor.css"
+import checkMoveToChild from "./logic/checkMoveToChild";
+import ComponentsRender from "./logic/jsxParser";
+import { JSONLocationSearch } from "./logic/jsonTreeSelector";
 
-type Props = {}
+/////
+let fixedComponents: string[] = []
+let staticComponents: string[] = []
+/////
+let moduleTypes = ["Text", "Logo", "SearchBar", "Image", "Módulo", ""]
+let ComponentsTree = ["Container", "Columns", "Header", "Text", "Logo", "Image", "Form", "SearchBar", "SocialProfiles"]
 
-const defaultHTML: htmlComponent = {
-  comp_id: "Body",
-  textContent: null,
-  classes: "",
-  style: { },
-  components: [
-    {
-      comp_id: "1", classes: "",
-      components: [{
-        comp_id: "1-0", classes: "",
+document.body.setAttribute("dragging", "undefined");
+
+export const GlobalFunctions = React.createContext(null);
+export default function AdminEditor() {
+  const JSON = {
+    content: [
+      {
+        comp_id: "1", classes: "",
         components: [{
-          comp_id: "1-0-0", classes: "",
-          components: [],
+          comp_id: "1-0", classes: "",
+          components: [{
+            comp_id: "1-0-0", classes: "",
+            components: [],
+            textContent: "Div",
+            style: { background: "blue", padding: "1rem", display: "flex", width: "2rem", height: "3rem" },
+          }],
           textContent: "Div",
-          style: { background: "blue", padding: "1rem", display: "flex", width: "2rem", height: "3rem" },
+          style: { background: "red", padding: "1rem", display: "flex" },
         }],
         textContent: "Div",
-        style: { background: "red", padding: "1rem", display: "flex" },
-      }],
-      textContent: "Div",
-      style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem" },
-    }
-  ]
-}
-
-export default function App({ }: Props) {
-  const [html, setHtml] = React.useState(defaultHTML)
-  const [zoom, setZoom] = React.useState(7)
-  const [selected, setSelected] = React.useState(undefined)
-
-  const searchInHTML =(selected: string|undefined)=>{
-    if(!selected) return 
-    let splited = selected.split("-")
-    let obj = html.components[parseInt(splited[0])-1]
-    splited.shift()
-    while (splited.length !== 0) {
-      let val = parseInt(splited[0])
-      obj = obj.components[val]
-      splited.shift()
-    }
-    return obj
+        style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem" },
+      }]
   }
-  React.useEffect(()=>{
-    if(!selected) return
-  }, [selected])
+  const [refresh, activateRefresh] = React.useState(false)
+  let zoom = 0.7
 
-  return <main>
-    <SideBar selected={searchInHTML(selected)}/>
-    <section className="render">
-      <section className="content" style={{ scale: `${zoom / 10}` }}>
-        <div className='body' accessKey="0" style={html.style}>
-          <Component props={html} setSelected={setSelected}/>
+  const editScreen = React.useRef<HTMLDivElement | null>(null)
+  const TrashCanRef = React.useRef<HTMLDivElement | null>(null)
+
+  const [selected, setSelected] = React.useState<string | undefined>(undefined)
+
+  function handleSetSelected(key: string, provinence: boolean) {
+    //provinence: if(true) modules; else sidebar > jsontree || editor;
+    if (provinence) { if (key !== undefined && key !== selected) setSelected(key) }
+    else setSelected(key)
+  }
+
+  const convertToSplit = (string: string) => {
+    let splited = string.split("-")
+    splited[0] = `${parseInt(splited[0]) - 1}`
+
+    return splited
+  }
+
+  const changeJSON = {
+    "create": (target: string, data: any) => {
+      let styles = { background: "#d6d6d6", height: "50px", padding: "5px", margin: "5px" }
+      let newBlock = moduleTypes.includes(data) ?
+        { "type": data, "data": { "className": "", "style": styles } }
+        :
+        { "type": `${data}`, "data": { "className": `${data}-d`, "style": styles }, "components": [] }
+
+      let Target = convertToSplit(target)
+      let location = JSONLocationSearch(Target, JSON)
+      location.splice(Target[Target.length - 1], 0, newBlock)
+      setSelected(undefined)
+    },
+    "delete": (target: string) => {
+      let Target = convertToSplit(target)
+      let location = JSONLocationSearch(Target, JSON)
+      location.splice(Target[Target.length - 1], 1)
+      if (selected !== undefined) setSelected(undefined)
+      else activateRefresh(!refresh)
+    },
+    "edit": (target: string, data: any) => {
+      let Target = convertToSplit(target)
+      let location = JSONLocationSearch(Target, JSON)
+      Object.assign(location[Target[Target.length - 1]].data, data.data)
+      setSelected(undefined)
+    }
+  }
+
+  function moveComponent(source: string, target: string) {
+    console.log("src:", source, "trg:", target)
+    if (ComponentsTree.includes(source)) { changeJSON.create(target, source); return }
+    if (source === "" || source === target) return
+    let removedComponent;
+
+    let Source = convertToSplit(source)
+    let Target = convertToSplit(target)
+
+    let sourceObj = JSONLocationSearch(Source, JSON)
+    removedComponent = sourceObj.splice(Source[Source.length - 1], 1, "placeholder")
+
+    let targetObj = JSONLocationSearch(Target, JSON)
+    targetObj.splice(Target[Target.length - 1], 0, removedComponent[0])
+
+    if (selected !== undefined) setSelected(undefined)
+    else activateRefresh(!refresh)
+  }
+
+  const handlerMoveComponent = (e) => {
+    document.body.setAttribute("dragging", "undefined");
+    let module = e.dataTransfer.getData("Text");
+    e.target.className = "placeInvisible"
+    let accessKeySplited = module.split("-")
+    if (accessKeySplited[0] === "static") {
+      accessKeySplited.shift()
+      module = accessKeySplited.join("-")
+    }
+    moveComponent(module, e.target.accessKey.slice(0, -1))
+  }
+
+  //pending clean
+  function addDragEnterStyle(array: any[], bool: boolean) {
+    //this is bullshit, a hard to fix bullshit
+    if (array.length === 0 || array[0].classList.contains("drop-place-adaptable") || (array[0].accessKey === undefined && !array[0].className !== "drop-place")) return
+    for (let i = 0; i < array.length; i++) {
+      array[i].className = bool ? "drop-place-adaptable" : "drop-place"
+      i++
+    }
+  }
+
+
+  let notAllowedMoves: { [key: string]: any } = {}
+
+  const DragEnter = (e) => {
+    if (e.target.accessKey === undefined
+      || e.target.accessKey === ""
+      || !document.body.attributes.dragging
+      || document.body.attributes.dragging?.value === undefined
+      || e.target.attributes.fixed?.value === "true")
+      return
+    let [dragging, accessKey] = document.body.attributes.dragging?.value.split(".");
+    if (!checkMoveToChild(accessKey, e.target.accessKey)) return
+    let level = e.target.accessKey.split("-")
+    let key = level[0] === "0" ? "0" : level.length
+    if (!notAllowedMoves[key]?.includes(dragging))
+      addDragEnterStyle(e.target.childNodes, true);
+  }
+
+  function DragEndDrop(e) {
+    if (document.body.attributes.dragging?.value === undefined) return
+    document.body.setAttribute("dragging", "undefined");
+    addDragEnterStyle(e.target.childNodes, false);
+    activateRefresh(!refresh)
+  }
+  // pending clean above
+
+  //editor site/comp variables
+
+  let renderJSON = JSON
+
+  // Object.keys(JSONtemplate.views)
+
+  ///components
+
+  function TrashCan() {
+    return (
+      <FontAwesomeIcon
+        ref={TrashCanRef}
+        className="delete-dnd"
+        onDragOver={(e) => { e.preventDefault() }}
+        onDrop={(e) => {
+          document.body.setAttribute("dragging", "undefined");
+          let module = e.dataTransfer.getData("Text")
+          if (module.split("-")[0] === "static" || ComponentsTree.includes(module)) return
+          changeJSON.delete(module)
+        }}
+        icon={faTrash}
+        style={{ fontSize: "2rem" }}
+      />
+    )
+  }
+
+  function Zoom() {
+    return <div className="zoom">
+      <FontAwesomeIcon
+        icon={faPlus}
+        onClick={() => {
+          if (zoom < 0.9) {
+            zoom += 0.1;
+            if (editScreen.current) editScreen.current.style.transform = `scale(${zoom})`
+          }
+        }}
+        size="xl"
+      />
+      <FontAwesomeIcon
+        icon={faMinus}
+        onClick={() => {
+          if (zoom > 0.3) {
+            zoom -= 0.1;
+            if (editScreen.current) editScreen.current.style.transform = `scale(${zoom})`
+          }
+        }}
+        size="xl"
+      />
+    </div>
+  }
+
+  return (
+    <div className="screen">
+      <GlobalFunctions.Provider value={{
+        moveComponent: handlerMoveComponent,
+        setSelected: handleSetSelected,
+        changeJSON: changeJSON,
+      }}>
+        <SideBar
+          mode={"editor"}
+          JSONTree={renderJSON}
+          selected={selected}
+          setSelected={handleSetSelected}
+          staticComponents={staticComponents}
+          fixedComponents={fixedComponents}
+        />
+        <div>
+          {/* <NavBar type={"editor"} span={navBarSelector} JSON={JSON} /> */}
+          <div className="app-cont">
+            <TrashCan />
+            <Zoom />
+            <div className="edit-screen" style={{ transform: `scale(${zoom})` }} ref={editScreen}>
+              <div accessKey="0"
+                onDragStart={(e) => { document.body.setAttribute("dragging", e.target.attributes.type.value + "." + e.target.accessKey) }}
+                onDragEnter={DragEnter}
+                onDragOver={(e) => { e.preventDefault() }}
+                onDrop={DragEndDrop}
+                onDragEnd={DragEndDrop}
+              >
+                {renderJSON !== undefined ?
+                  <ComponentsRender
+                    generatePlaces={AdminEditor}
+                    components={renderJSON.content}
+                    select={selected}
+                    setSelected={handleSetSelected}
+                    fixed={fixedComponents}
+                    static={staticComponents}
+                  />
+                  : null}
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
-      <div className='zoom-container'>
-        <button onClick={() => { setZoom(zoom + 1) }}>
-          <FontAwesomeIcon icon={faPlus} />
-        </button>
-        <button onClick={() => { setZoom(zoom - 1) }}>
-          <FontAwesomeIcon icon={faMinus} />
-        </button>
-      </div>
-    </section>
-  </main>
+      </GlobalFunctions.Provider>
+    </div>
+  )
 }

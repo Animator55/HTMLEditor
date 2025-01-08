@@ -1,0 +1,182 @@
+body:has(.edit-screen) {
+    overflow: hidden;
+}
+
+.zoom {
+    position: fixed;
+    bottom: 12px;
+    z-index: 1;
+    right: 12px;
+    display: flex;
+    gap: 10px;
+    background-color: var(--cwhite);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 9px 32px -6px var(--cblue);
+}
+
+.zoom > * {
+    transition: color 300ms;
+    color: var(--cblue);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.zoom > *:hover {
+    transition: color 300ms;
+    color: var(--cpink);
+}
+
+.drag-zone-parent {
+    min-width: 215px;
+    position: fixed; 
+    z-index: -1;
+}
+
+.drag-zone {
+    top: -3px;
+}
+
+.drag-zone.top {
+    min-height: 3px;
+    width: 100%;
+    cursor: n-resize;
+}
+.drag-zone.left {
+    min-height: 200px;
+    width: 5px;
+    cursor: w-resize;
+}
+.drag-zone.right {
+    width: 5px;
+    cursor: e-resize;
+}
+.drag-zone.bottom {
+    min-height: 3px;
+    width: 100%;
+    cursor: s-resize;
+}
+
+.delete-dnd {
+    position: fixed;
+    transition: all 300ms;
+    background: var(--clight);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0px var(--cpurple);
+    padding: 5px;
+    right: 3%;
+    top: calc(var(--nav-height) + 20px);
+    z-index: 1;
+}
+
+body[dragging="undefined"] .delete-dnd {
+    display: none;
+}
+
+.delete-dnd:hover {
+    color: black
+}
+
+.page-selector {
+    box-shadow: 0 0 25px var(--clight);
+    border: 3px solid var(--clight);
+    margin: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-selector > button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 2rem;
+    text-align: left;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.page-selector > button:has(*:not(p):hover):after, .page-selector > button:has(*:not(p):hover)::before {
+    background-color: var(--cblue);
+    color: var(--cwhite);
+    position: absolute;
+    z-index: 3;
+}
+
+.page-selector > button:has(*:not(p):hover):after{
+    content: "This is the home page";
+    right: 0px;
+    top: -15px;
+    font-size: small;
+    padding: 2px 3px;
+    border-radius: 10px;
+}
+.page-selector > button:has(*:not(p):hover)::before {    
+    content: "";
+    width: 13px;
+    height: 13px;
+    right: 2.3rem;
+    top: 0px;
+    rotate: 45deg;
+}
+
+/**/
+
+.text-editor {
+    display: flex;
+    background: var(--cwhite);
+    padding: 3px 8px 8px;
+    box-shadow: 0 0px 20px 0px var(--clight);
+    border-radius: 5px;
+    position: relative;
+    border-top: var(--cpurple) 5px solid;
+    z-index: 1;
+    height: 50px;
+}
+
+.text-editor:hover + [contenteditable="true"], .text-editor + [contenteditable="true"]:hover{
+    box-shadow: 0 0px 20px 0px var(--clight);
+    background: var(--cwhite);
+    padding: 5px;
+}
+
+.text-editor button {
+    border: 1px solid var(--cblack);
+    background: var(--cwhite);
+    align-items: center;
+    font-size: x-large;
+    height: auto;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.text-editor .span-column {
+    position: absolute;
+    height: 0px;    
+    top: 0px;
+    overflow-y: scroll;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 200px;
+    background-color: var(--cwhite);
+} 
+
+.text-editor .span-column {
+    left: 160px;
+} 
+
+.text-editor .span-column.f-a {
+    left: 208px;
+} 
+
+.text-editor .span-column > div {
+    padding: 3px;
+    font-size: larger;
+    cursor: pointer;
+}
+
+.text-editor .span-column > div:hover {
+    background-color: var(--cblue);
+    transform: scale(1.1);
+}
+
+/**/
