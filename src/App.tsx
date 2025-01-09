@@ -17,28 +17,32 @@ let moduleTypes = ["Text", "Logo", "SearchBar", "Image", "Módulo", ""]
 let ComponentsTree = ["Container", "Columns", "Header", "Text", "Logo", "Image", "Form", "SearchBar", "SocialProfiles"]
 
 document.body.setAttribute("dragging", "undefined");
-
-export const GlobalFunctions = React.createContext(null);
-export default function AdminEditor() {
-  const JSON = {
-    content: [
-      {
-        comp_id: "1", classes: "",
+const JSON = {
+  content: [
+    {
+      comp_id: "1", classes: "",
+      components: [{
+        comp_id: "1-0", classes: "",
         components: [{
-          comp_id: "1-0", classes: "",
-          components: [{
-            comp_id: "1-0-0", classes: "",
-            components: [],
-            textContent: "Div",
-            style: { background: "blue", padding: "1rem", display: "flex", width: "2rem", height: "3rem" },
-          }],
+          comp_id: "1-0-0", classes: "",
+          components: [],
           textContent: "Div",
-          style: { background: "red", padding: "1rem", display: "flex" },
+          style: { background: "blue", padding: "1rem", display: "flex", width: "2rem", height: "3rem" },
         }],
         textContent: "Div",
-        style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem" },
-      }]
-  }
+        style: { background: "red", padding: "1rem", display: "flex" },
+      }],
+      textContent: "Div",
+      style: { background: "green", padding: "1rem", display: "flex", gap: ".5rem" },
+    }]
+}
+
+export const GlobalFunctions = React.createContext({
+  moveComponent: (e: string) => { console.log(e) },
+  setSelected: (val: string, provinence: boolean) => { console.log(val, provinence) },
+  changeJSON: {}
+});
+export default function AdminEditor() {
   const [refresh, activateRefresh] = React.useState(false)
   let zoom = 0.7
 
@@ -100,6 +104,7 @@ export default function AdminEditor() {
     let sourceObj = JSONLocationSearch(Source, JSON)
     removedComponent = sourceObj.splice(Source[Source.length - 1], 1, "placeholder")
 
+    console.log(removedComponent)
     let targetObj = JSONLocationSearch(Target, JSON)
     targetObj.splice(Target[Target.length - 1], 0, removedComponent[0])
 
@@ -111,18 +116,16 @@ export default function AdminEditor() {
     document.body.setAttribute("dragging", "undefined");
     let module = e.dataTransfer.getData("Text");
     e.target.className = "placeInvisible"
-    let accessKeySplited = module.split("-")
-    if (accessKeySplited[0] === "static") {
-      accessKeySplited.shift()
-      module = accessKeySplited.join("-")
-    }
     moveComponent(module, e.target.accessKey.slice(0, -1))
   }
 
   //pending clean
   function addDragEnterStyle(array: any[], bool: boolean) {
     //this is bullshit, a hard to fix bullshit
-    if (array.length === 0 || array[0].classList.contains("drop-place-adaptable") || (array[0].accessKey === undefined && !array[0].className !== "drop-place")) return
+    if (array.length === 0
+      || array[0].classList.contains("drop-place-adaptable")
+      || (array[0].accessKey === undefined
+        && array[0].className !== "drop-place")) return
     for (let i = 0; i < array.length; i++) {
       array[i].className = bool ? "drop-place-adaptable" : "drop-place"
       i++
@@ -130,27 +133,27 @@ export default function AdminEditor() {
   }
 
 
-  let notAllowedMoves: { [key: string]: any } = {}
+  // let notAllowedMoves: { [key: string]: any } = {}
 
-  const DragEnter = (e) => {
+  const DragEnter = (e: React.MouseEvent) => {
     if (e.target.accessKey === undefined
       || e.target.accessKey === ""
       || !document.body.attributes.dragging
       || document.body.attributes.dragging?.value === undefined
       || e.target.attributes.fixed?.value === "true")
       return
-    let [dragging, accessKey] = document.body.attributes.dragging?.value.split(".");
+    let accessKey = document.body.attributes.dragging?.value;
     if (!checkMoveToChild(accessKey, e.target.accessKey)) return
-    let level = e.target.accessKey.split("-")
-    let key = level[0] === "0" ? "0" : level.length
-    if (!notAllowedMoves[key]?.includes(dragging))
-      addDragEnterStyle(e.target.childNodes, true);
+    // let level = e.target.accessKey.split("-")
+    // let key = level[0] === "0" ? "0" : level.length
+    // if (!notAllowedMoves[key]?.includes(dragging))
+    addDragEnterStyle(e.target.children, true);
   }
 
   function DragEndDrop(e) {
     if (document.body.attributes.dragging?.value === undefined) return
     document.body.setAttribute("dragging", "undefined");
-    addDragEnterStyle(e.target.childNodes, false);
+    addDragEnterStyle(e.target.children, false);
     activateRefresh(!refresh)
   }
   // pending clean above
@@ -228,22 +231,21 @@ export default function AdminEditor() {
             <Zoom />
             <div className="edit-screen" style={{ transform: `scale(${zoom})` }} ref={editScreen}>
               <div accessKey="0"
-                onDragStart={(e) => { document.body.setAttribute("dragging", e.target.attributes.type.value + "." + e.target.accessKey) }}
+                onDragStart={(e) => { document.body.setAttribute("dragging", e.target.accessKey)}}
                 onDragEnter={DragEnter}
                 onDragOver={(e) => { e.preventDefault() }}
                 onDrop={DragEndDrop}
                 onDragEnd={DragEndDrop}
               >
-                {renderJSON !== undefined ?
-                  <ComponentsRender
-                    generatePlaces={AdminEditor}
-                    components={renderJSON.content}
-                    select={selected}
-                    setSelected={handleSetSelected}
-                    fixed={fixedComponents}
-                    static={staticComponents}
-                  />
-                  : null}
+                {renderJSON && <ComponentsRender
+                  props={{
+                    components: renderJSON.content,
+                    select: selected,
+                    setSelected: handleSetSelected,
+                    fixed: fixedComponents,
+                    static: staticComponents,
+                  }}
+                />}
               </div>
             </div>
           </div>

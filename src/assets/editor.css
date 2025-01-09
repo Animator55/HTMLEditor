@@ -38,6 +38,7 @@ body {
 
 .edit-screen > div {
     min-height: 50px;
+    height: 100%;
 }
 
 .edit-screen * {
