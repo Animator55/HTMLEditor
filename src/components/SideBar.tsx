@@ -65,7 +65,7 @@ export default function SideBar({mode, JSONTree, selected, setSelected,fixedComp
             setSelected(undefined, false);
         }
         else{
-            setSelected(e.target.accessKey)
+            setSelected(e.target.id)
         }
     }
 

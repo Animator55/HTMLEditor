@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faMinus, faTrash, faHome } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faMinus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import SideBar from "./components/SideBar";
 import "./assets/editor.css"
 import "./assets/styles.css"
@@ -38,7 +38,7 @@ const JSON = {
 }
 
 export const GlobalFunctions = React.createContext({
-  moveComponent: (e: string) => { console.log(e) },
+  moveComponent: (e: React.DragEvent) => { console.log(e) },
   setSelected: (val: string, provinence: boolean) => { console.log(val, provinence) },
   changeJSON: {}
 });
@@ -112,11 +112,12 @@ export default function AdminEditor() {
     else activateRefresh(!refresh)
   }
 
-  const handlerMoveComponent = (e) => {
+  const handlerMoveComponent = (e: React.DragEvent) => {
     document.body.setAttribute("dragging", "undefined");
     let module = e.dataTransfer.getData("Text");
-    e.target.className = "placeInvisible"
-    moveComponent(module, e.target.accessKey.slice(0, -1))
+    let target = e.target as HTMLDivElement
+    target.className = "placeInvisible"
+    moveComponent(module, target.id.slice(0, -1))
   }
 
   //pending clean
@@ -124,7 +125,7 @@ export default function AdminEditor() {
     //this is bullshit, a hard to fix bullshit
     if (array.length === 0
       || array[0].classList.contains("drop-place-adaptable")
-      || (array[0].accessKey === undefined
+      || (array[0].id === undefined
         && array[0].className !== "drop-place")) return
     for (let i = 0; i < array.length; i++) {
       array[i].className = bool ? "drop-place-adaptable" : "drop-place"
@@ -135,25 +136,25 @@ export default function AdminEditor() {
 
   // let notAllowedMoves: { [key: string]: any } = {}
 
-  const DragEnter = (e: React.MouseEvent) => {
-    if (e.target.accessKey === undefined
-      || e.target.accessKey === ""
-      || !document.body.attributes.dragging
-      || document.body.attributes.dragging?.value === undefined
-      || e.target.attributes.fixed?.value === "true")
+  const DragEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    let target = e.target as HTMLDivElement
+    if (!target || target.id === undefined
+      || target.id === ""
+      || !document.body.getAttribute("dragging"))
       return
-    let accessKey = document.body.attributes.dragging?.value;
-    if (!checkMoveToChild(accessKey, e.target.accessKey)) return
-    // let level = e.target.accessKey.split("-")
+    let id = document.body.getAttribute("dragging");
+    if (!checkMoveToChild(id, target.id)) return
+    // let level = e.target.id.split("-")
     // let key = level[0] === "0" ? "0" : level.length
     // if (!notAllowedMoves[key]?.includes(dragging))
-    addDragEnterStyle(e.target.children, true);
+    addDragEnterStyle([...target.children], true);
   }
 
-  function DragEndDrop(e) {
-    if (document.body.attributes.dragging?.value === undefined) return
+  function DragEndDrop(e: React.DragEvent) {
+    let target = e.target as HTMLDivElement
+    if (document.body.getAttribute("dragging") === undefined || !target) return
     document.body.setAttribute("dragging", "undefined");
-    addDragEnterStyle(e.target.children, false);
+    addDragEnterStyle([...target.children], false);
     activateRefresh(!refresh)
   }
   // pending clean above
@@ -171,8 +172,8 @@ export default function AdminEditor() {
       <FontAwesomeIcon
         ref={TrashCanRef}
         className="delete-dnd"
-        onDragOver={(e) => { e.preventDefault() }}
-        onDrop={(e) => {
+        onDragOver={(e: React.DragEvent) => { e.preventDefault() }}
+        onDrop={(e: React.DragEvent) => {
           document.body.setAttribute("dragging", "undefined");
           let module = e.dataTransfer.getData("Text")
           if (module.split("-")[0] === "static" || ComponentsTree.includes(module)) return
@@ -230,8 +231,11 @@ export default function AdminEditor() {
             <TrashCan />
             <Zoom />
             <div className="edit-screen" style={{ transform: `scale(${zoom})` }} ref={editScreen}>
-              <div accessKey="0"
-                onDragStart={(e) => { document.body.setAttribute("dragging", e.target.accessKey)}}
+              <div id="0"
+                onDragStart={(e) => {
+                  let target = e.target as HTMLElement
+                  if (target) document.body.setAttribute("dragging", target.id)
+                }}
                 onDragEnter={DragEnter}
                 onDragOver={(e) => { e.preventDefault() }}
                 onDrop={DragEndDrop}
@@ -241,10 +245,8 @@ export default function AdminEditor() {
                   props={{
                     components: renderJSON.content,
                     select: selected,
-                    setSelected: handleSetSelected,
-                    fixed: fixedComponents,
-                    static: staticComponents,
                   }}
+                  setSelected={handleSetSelected}
                 />}
               </div>
             </div>
