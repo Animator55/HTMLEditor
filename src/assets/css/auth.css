@@ -1,0 +1,138 @@
+
+.fixed-auth-container {
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    z-index: 6;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.auth-information {
+    background-color: var(--cblack);
+    color: var(--cwhite);
+    padding: 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.auth-information::before {
+    content: "";
+    background-image: url('https://www.octagonal.app/assets/img/rocketlanding-01.svg');
+}
+
+.auth-information > div {
+    margin: auto 0 0 auto;
+    text-align: end;
+}
+
+.auth-information a{
+    color: var(--cpink);
+}
+
+.auth-information a:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.auth-information button {
+    background: -webkit-linear-gradient(150deg, #832F91, #E54F6D);
+    padding: 1rem 1rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+}
+
+.auth-information button:hover{
+    transform: scale(1.05);
+}
+
+.auth-information button a {
+    color: var(--cwhite);
+    font-size: large;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 10px;    
+    height: 100%;
+    width: 19rem;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.fixed-auth-container > .auth-form {
+    margin: auto;
+    height: auto;
+    max-width: 20%;
+    background-color: var(--cwhite);
+    box-shadow: 0 0px 20px 0px var(--clight);
+}
+
+.auth-form > * {
+    margin: 5px 0;
+}
+
+.auth-form ul {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+
+.auth-form ul span {
+    font-size: 0.8rem;
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+.auth-form ul span > p {
+    background-color: var(--cwhite);
+    padding: 1px;
+}
+
+.auth-form ul span::before{
+    content: "";
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+    z-index: -1;
+    border: 1px solid var(--clight);
+    width: 100%;
+}
+
+.log-with {
+    border: 2px solid var(--cpurple2);
+    border-radius: 5px;
+    background-color: var(--cwhite);
+    padding: 1rem;
+    color: var(--cdeep);
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.log-with > :first-child {
+    color: var(--cpink);
+}
+
+.auth-form button[type="submit"] {
+    background-color: var(--cblack);
+    color: var(--cpink);
+    padding: 1rem;
+    font-size: large;
+    border-radius: 5px;
+}
+
+.auth-form button.disabled {
+    color: var(--clight);
+    background-color: var(--cgray);
+}

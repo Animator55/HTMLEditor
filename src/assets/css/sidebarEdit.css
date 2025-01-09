@@ -4,13 +4,16 @@
     text-align: left;
     overflow-y: scroll;
     overflow-x: hidden;
-    max-height: calc(100dvh - 200px);
+    -webkit-user-select: none;  
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none; 
 }
 
 .json-tree > div {
     min-height: 50px;
 }
-
+/* 
 .json-tree div,
 .json-tree button {
     text-align: left;
@@ -21,6 +24,15 @@
     -moz-user-select: none; 
     -ms-user-select: none; 
     user-select: none; 
+} */
+
+.json-tree li {
+    display: flex;
+    flex-direction: column;
+}
+
+.json-tree .drop-place div {
+    padding-left: 0;
 }
 
 .json-tree .close-span { 
@@ -30,15 +42,15 @@
     gap: 6px 0
 }
 
-.json-tree button:first-of-type {
+/* .json-tree button:first-of-type {
     background-color: var(--clight);
     padding: 5px;
     border-radius: 25px;
-    width: -webkit-fill-available;
-}
+    width: 100%;
+} */
 
-.close-span > :first-child > :first-child {
-    rotate: 0deg;
+.close-span > :first-child .comp-opener:not(.disabled) {
+    rotate: 90deg;
     transition: rotate 300ms;
 }
 
@@ -48,8 +60,9 @@
     transition: max-height 300ms;
 }
 
-.open-span > :first-child > :first-child {
-    rotate: 90deg;
+.open-span > :first-child > .comp-opener {
+    rotate: 270deg;
+    color: var(--cpurple);
     transition: rotate 300ms;
 }
 
@@ -58,6 +71,63 @@
     overflow-y: scroll;
     overflow-x: hidden;
     transition: max-height 300ms;
+}
+
+.open-span > :last-child::-webkit-scrollbar {
+    width: 2px;
+}
+
+.comp-wraper {
+    display: flex;
+    align-items: center;
+    background-color: var(--clight);
+    padding: 5px;
+    border-radius: 0 25px 25px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comp-wraper.inverse {
+    background-color: var(--clighter);
+    border-radius: 25px;
+}
+
+.comp-wraper > * {
+    border-radius: 15px;
+}
+
+.comp-selector {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    gap: 3%;
+}
+.comp-selector > p {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: fit-content;
+}
+
+.comp-opener {    
+    place-items: center;
+    display: flex;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.comp-opener.disabled {
+    opacity: 0.5;
+}
+
+.dragging + .comp-opener {
+    pointer-events: none;
+}
+
+.comp-list {
+    padding-inline-start : 10%
 }
 
 .placeholder {
@@ -72,20 +142,26 @@
 .component-editor {
     display: flex;
     flex-direction: column;
-    min-width: 210px;
+    box-sizing: border-box;
     min-height: 200px;
     text-align: left;
     color: var(--cdeep);
-    background-color: var(--cwhite);
-    border-radius: 10px;
-    box-shadow: 0 9px 32px -6px var(--cpurple);
-    margin-top: auto;
-    position: absolute;
+    background-color: var(--clighter);
+    max-height: var(--app-height);
+    z-index: 3;
+    height: 100%;
+    padding-bottom: 0.5rem;
+    position: relative;
+    border-radius: 5px;
 }
 
-.component-editor:not(.editor-draggable){
-    bottom: 0;
-    max-height: 80vh;
+.app-cont > .component-editor {
+    background-color: transparent;
+}
+
+.component-editor > .drag-zone.bottom:first-child {    
+    position: absolute;
+    top: 100%;
 }
 
 .component-editor * {
@@ -118,10 +194,8 @@
 
 .editor-draggable {
     cursor: all-scroll; 
-    min-width: 215px;
-    min-height: 200px;
-    z-index: 5;
     position: fixed; 
+    max-height: none!important;
 }
 
 .editor-draggable .editor-form {
@@ -131,10 +205,36 @@
 
 .editor-form {
     margin: 7px;
-    overflow-y: scroll;
-    overflow-x: hidden;
+    overflow: hidden;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.editor-form nav > *, .container-editors nav > *, .side-bar.edit nav > * {
+    padding: 5px; 
+    border-radius: 5px 5px 0 0;
+}
+
+.editor-form nav > .selected-page, 
+.container-editors nav > .selected-page, 
+.side-bar.edit nav > .selected-page {
+    background-color: var(--clight);
+    color: var(--cwhite);
+    border: none;
+}
+
+.editor-form > .page, 
+.container-editors > .page, 
+.side-bar.edit > .page{
     display: flex;
     flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: var(--clight);
+    padding: 8px;
+    border-radius: 0 0 5px 5px;
+    height: 100%;
 }
 
 .component-picker {
@@ -158,6 +258,20 @@
 
 /*Tags*/
 
+.tag-contain {
+    display: flex;
+    align-items: center;
+    max-width: fit-content;
+}
+
+.tag-contain > .tags {
+    max-width: 75%;
+}
+
+.tag-contain > :last-child {
+    margin-left: auto;
+}
+
 .tags {
     background: var(--cpink);
     color: var(--cwhite);
@@ -167,7 +281,7 @@
     position: relative;
     align-items: center;
     margin: 3px;
-    width: fit-content;
+    max-width: fit-content;
     transition:opacity 300ms, transform 300ms;
     cursor: pointer;
 }
@@ -196,7 +310,7 @@
 .custom-font-list {
     position: absolute;
     z-index: 4;
-    width: -webkit-fill-available;
+    width: 100%;
     bottom: 10px;
     border-radius: 5px;
     background: var(--cwhite);
@@ -209,7 +323,7 @@
 .font-pages-list {
     display: grid;
     grid-template-columns: 14% 14% 14% 16% 14% 14% 14%;
-    width: -webkit-fill-available;
+    width: 100%;
 }
 
 .font-pages-list > * {
@@ -230,7 +344,7 @@
 .custom-class-list {
     position: absolute;
     z-index: 4;
-    width: -webkit-fill-available;
+    width: 100%;
     bottom: 10px;
     padding: 5px;
     border-radius: 5px;

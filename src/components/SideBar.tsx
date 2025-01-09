@@ -1,50 +1,32 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faHome, faKey, faCartShopping, faToolbox, faUserTie, faCircleInfo, faList, faGear, faArrowRightFromBracket, faListNumeric, faFilePen, faPenRuler, faArrowLeft, faCircleXmark, faCheck, faTrash, faExclamationTriangle, faFolderTree, faFont, faMinus, faCircleNotch, faArrowRight, faMagnifyingGlass, faXmark, faStar, faArrowDownWideShort, faSearch, faSquareShareNodes, faWindowRestore, faLock, faCaretUp, faPen, faClapperboard, faCopy, faTag } from '@fortawesome/free-solid-svg-icons'
-// import SideBarFont from "./SideBar_Pages/FontPage";
-// import SideBarClasses from "./SideBar_Pages/ClassPage";
-// import SideBarAnimations from "./SideBar_Pages/AnimationPage";
-// import SideBarGeneral from "./SideBar_Pages/GeneralPage";
-// import PagesButtons from "./SideBar_Pages/PagesButtons";
-import selectInJson from "../logic/jsonTreeSelector";
-// import EditorParser from "./SideBar_Pages/EditorParser";
-
-
-import "../assets/sidebar.css";
-import "../assets/sidebarEdit.css";
-import { htmlComponent } from "../vite-env";
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import JSONTreeComponent from "./SideBar_Pages/JSONTreePage";
+import SideBarFont from "./SideBar_Pages/FontPage";
+import SideBarGeneral from "./SideBar_Pages/GeneralPage";
+import PagesButtons from "./SideBar_Pages/PagesButtons";
 
-type Props = {
-    JSONTree: {content: htmlComponent[]}
-    selected: string
-    setSelected: Function
-}
-///////////
-// let customFontList = ["Bakbak One", "ABeeZee"]
-//////////
 
-// let mainFont= ""
-// const setMainFont = (val:string)=>{mainFont = val}
+import "../assets/css/sidebar.css";
+import "../assets/css/sidebarEdit.css";
+import SideBarAnimations from "./SideBar_Pages/AnimationPage";
 
-export default function SideBar({ JSONTree, selected, setSelected}: Props) {
-    const LocalJSON = JSONTree
-    const [sideBarWidth, setSideBarWidth] = React.useState(300)
-    const [editorMode, setEditorMode] = React.useState({});
-    const [editorSize, setEditorSize] = React.useState({ x: sideBarWidth - 21, y: 300 });
-    const [sideBarPage, setSideBarPage] = React.useState("Components")
-
+export default function SideBar({mode, JSONTree, selected, createComponent,fixedComponents, selectedFonts}) {
+    let editionModeSideBar = mode === "editor";
+    const [sideBarWidth, setSideBarWidth] = React.useState(50)
+    const [sideBarPage, setPage] = React.useState("Components")
+    const SideCont = React.useRef()
     const resizeSideBar = (e) =>{
         e = e || window.event;
         e.preventDefault();
-        let el = e.target.nextSibling
+        let el = e.target.parentElement
         let prevSize = sideBarWidth
         
         function dragMove(dragMov){
             let newX = prevSize - e.pageX + dragMov.pageX
-            el.style.minWidth = newX > 366 ? "366px" : newX < 231 ? "231px" : newX + "px"
+            el.style.minWidth = newX > 366 ? "366px" : newX < 233 ? "233px" : newX + "px"
             let newXDrag = prevSize - e.pageX + dragMov.pageX
-            e.target.style.left = newXDrag > 366 ? "366px" : newXDrag < 231 ? "231px" : newXDrag + "px"
+            e.target.style.left = newXDrag > 366 ? "366px" : newXDrag < 233 ? "233px" : newXDrag + "px"
         }
 
         function dragEnd(){
@@ -52,7 +34,6 @@ export default function SideBar({ JSONTree, selected, setSelected}: Props) {
             el.style.maxWidth = el.style.minWidth
             if(value <= 290) el.classList.add("small")
             else el.classList.remove("small")
-            if(editorMode.top === undefined) setEditorSize({ x: value - 21, y: editorSize.y})
             setSideBarWidth(value)
             document.removeEventListener('mousemove', dragMove);
             document.removeEventListener('mouseup', dragEnd);
@@ -61,88 +42,58 @@ export default function SideBar({ JSONTree, selected, setSelected}: Props) {
         document.addEventListener('mousemove', dragMove);
         document.addEventListener('mouseup', dragEnd);
     }
-    
-    // const selectedFonts = customFontList
-    let editor
-    editor = selected !== undefined && editor?.key !== selected ? selectInJson(selected, LocalJSON) : undefined
 
-    function selectItem (e) {
-        if(e.target.className !== ""){
-            setSelected(undefined, false);
-        }
-        else{
-            setSelected(e.target.id)
-        }
+    const setSideBarPage = (page)=>{
+        setPage(page)
+        setSideBarWidth(!SideCont.current.classList.contains("expanded") ? 233 : sideBarWidth)
+        SideCont.current.classList.add("expanded")
     }
 
-    let JSX;
-    function SideBarSelector(page:string) {
-        switch(page){
-            case "Components":
-                return (
-                <div>
-                    <div>
-                        <button 
-                            className="btn-2 align-center"
-                            onClick={()=>{setSelected("New");}}
-                        >
-                            <FontAwesomeIcon icon={faPlus} style={{fontSize: "1.5rem"}}/>
-                        </button>
-                    </div>
-                    <div className="json-tree">
-                        <JSONTreeComponent
-                            JSONTree={JSONTree} 
-                            selectItem={selectItem} 
-                        />
-                    </div>
-                    {/* {editor !== undefined ? (
-                        <EditorParser
-                            editor={editor} 
-                            editorMode={editorMode} 
-                            setEditorMode={setEditorMode} 
-                            editorSize={editorSize} 
-                            setEditorSize={setEditorSize} 
-                            setSelected={setSelected}
-                            selectedFonts={selectedFonts}
-                            staticComponents={editionModeSideBar ? staticComponents : [JSONTree.content[0].type]}
-                        />
-                    ) : null} */}
-                </div>)
-            // case "Fonts":
-            //     return <SideBarFont 
-            //                 selectedFonts={selectedFonts} 
-            //                 mainFont={mainFont} 
-            //                 setMainFont={setMainFont}
-            //             />
-            // case "Class":
-            //     return <SideBarClasses/>
-            // case "Animations":
-            //     return <SideBarAnimations/>
-            // case "General":
-            //     return <SideBarGeneral
-            //                 selectedFonts={selectedFonts} 
-            //                 mainFont={mainFont} 
-            //                 setMainFont={setMainFont}
-            //                 JSONView={JSONTree}
-            //                 setSideBarPage={setSideBarPage}
-            //             />
-        }
-    }
-    JSX = (<>
-        <div className="side-bar-drag" style={{left: sideBarWidth}} onMouseDown={resizeSideBar}></div>
-        <div className="side-bar edit" style={{minWidth: sideBarWidth, maxWidth: sideBarWidth}}>
+    const page = {
+        "Components": <div className="component-editor">
             <div>
-                <h2 className="side-bar-title">HTML Editor</h2>
+                <button 
+                    className="btn-2 align-center"
+                    onClick={createComponent}
+                >
+                    <FontAwesomeIcon icon={faPlus} size="xl" className="margin-right-5px"/>
+                    <p>Anadir Componente</p>
+                </button>
             </div>
-            {JSONTree && <>
-                {/* <PagesButtons 
+            <div className="json-tree">
+                <JSONTreeComponent 
+                    JSONTree={JSONTree} 
+                    fixedComponents={editionModeSideBar ? fixedComponents : []}
+                    selected={selected} 
+                    generatePlaces={editionModeSideBar}
+                />
+            </div>
+        </div>
+        ,
+        "Fonts": <SideBarFont 
+            selectedFonts={selectedFonts} 
+        />,
+        "General": <SideBarGeneral
+                selectedFonts={selectedFonts} 
+                JSONView={JSONTree}
+                setSideBarPage={setSideBarPage}
+            />,
+        "Animations": <SideBarAnimations />
+    }
+
+    return (<>
+        <div className="side-bar edit small" ref={SideCont} style={{minWidth: sideBarWidth, maxWidth: sideBarWidth}}>
+            {JSONTree !== undefined ? <>
+                <PagesButtons 
                     displayAll={editionModeSideBar} 
                     sideBarPage={sideBarPage} 
                     setSideBarPage={setSideBarPage}
-                />  */}
-                {SideBarSelector(sideBarPage)}
-            </>}
+                    setSideBarWidth={setSideBarWidth}
+                /> 
+                <div className="page">{page[sideBarPage]}</div>
+            </>
+            : null}
+            <div className="side-bar-drag" style={{left: sideBarWidth}} onMouseDown={resizeSideBar}></div>
         </div> 
     </>)
-    return JSX
 }

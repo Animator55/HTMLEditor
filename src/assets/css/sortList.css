@@ -1,0 +1,26 @@
+section:has(.sort-list) {
+    position: relative;
+}
+.sort-list {
+    position: absolute;
+    z-index: 4;
+    top: 100%;
+    right: 0;
+    background: var(--clighter);
+    border-radius: 5px;
+    box-shadow: 0 6px 25px -6px var(--cdeep);
+}
+
+.sort-list.expanded {
+    max-height: 200px
+}
+
+.sort-list > div {
+    overflow: hidden;
+    border: 3px solid var(--clight);
+    border-radius: 5px;
+}
+
+.sort-list::-webkit-scrollbar{
+    display: none;
+}

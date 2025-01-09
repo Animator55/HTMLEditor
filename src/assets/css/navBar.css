@@ -1,0 +1,111 @@
+
+.nav-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    background-color: var(--clighter);
+    z-index: 5;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+.nav-bar:has(.logo) {
+    max-height: none;
+}
+
+.nav-bar .title {
+    font-weight: 400;
+    color: #ad72b8;
+    margin: 0;
+    margin-left: 1rem;
+    font-size: 25px;
+}
+
+.nav-bar section:has(.logo) {
+    margin: 0 auto 0 1rem;
+} 
+
+.nav-bar .container {
+    margin: 8px;
+    background-color: var(--cwhite);
+    border-radius: 15px;
+    min-width: 150px;
+    box-sizing: border-box;
+    max-width: 150px;
+    height: 57px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 5px;
+}
+
+.nav-bar .container > *:first-child{
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: smaller;
+    font-weight: 500;
+}
+
+.nav-bar .container .profile-image {
+    background-color: var(--cdarkgray);
+    border-radius: 50%;    
+    margin-left: auto;
+    width: 50px;
+    height: 50px;
+}
+
+.nav-bar a,
+.nav-bar button {
+    transform: scale(1)!important;
+    display: flex;
+    align-items: center;
+    color: var(--cdeep);
+    font-size: medium;
+}
+
+.nav-bar:empty + .app-cont {
+    height: 100vh;
+}
+
+.nav-bar .btn-span {
+    display: flex;
+    width: 110px;
+    padding: 6px;
+    position: relative;
+}
+
+.nav-bar .btn-span > p, .nav-span > :last-child button p  {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-span {
+    position: relative;
+}
+
+.nav-span > :last-child {
+    box-sizing: border-box;
+    max-height: 0px;
+    background-color: var(--cwhite);
+    overflow: hidden;
+    position: absolute;
+}
+
+.nav-span > :last-child {
+    width: 110px;
+}
+
+.nav-span > :last-child.expanded {
+    border: 2px solid var(--clighter);
+    max-height: 200px;
+}
+
+.nav-span > :last-child button{
+    width: 100%;
+}

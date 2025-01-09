@@ -1,0 +1,142 @@
+.form-pop-up {
+    margin: 15px;
+    width: 93%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--cwhite);
+    border-radius: 10px;
+    box-shadow: 0 9px 32px -6px var(--cdeep);
+    padding: 0;
+}
+
+.form-top-bar {
+    background-color: var(--clight);
+    padding: 5px;
+    display: flex; 
+    margin: 0; 
+    border-radius: 10px 10px 0 0;
+}
+
+.form-top-bar > :first-child {
+    margin: 0 0 0 10px
+}
+
+.form-top-bar > :last-child {
+    margin-left: auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 30% 68%;
+    gap: 2%;
+    padding: 15px;
+    margin: 0;
+    max-height: 55vh;
+}
+
+.form-flex {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin: 0;
+    max-height: 55vh;
+}
+
+.image-section {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+}
+
+.form-grid .input-grid, .form-flex .input-grid {
+    display: grid;
+    grid-template-columns: 48% 48%;
+    gap: 2%;
+}
+
+.input-grid > .column, .column > div{
+    display: flex;
+    flex-direction: column;
+    margin-right: 5%;
+}
+
+input {
+    width: 100%;
+}
+
+textarea {
+    min-height: 1rem;
+    max-height: 7rem;
+    width: 100%!important;
+}
+
+
+.form-submit, .copy-link-div > button {
+    color: var(--cwhite);
+    border: 2px solid;
+    background-color: var(--cblue);
+    margin: 5px 10px 10px auto;
+    transition: all 300ms;
+    font-size: larger;
+    position: relative;
+}
+
+.form-submit.disable, .copy-link-div > button.disable {
+    opacity: 0.5
+}
+
+.form-submit:not(.disable):hover, .copy-link-div > button:not(.disable):hover {
+    background-color: var(--cpink);
+}
+
+.form-submit::after, .copy-link-div > button::after {
+    content: "";
+    position: absolute;
+    border: 20px solid transparent;
+    transition: all 300ms;
+    inset: 0;
+}
+
+.form-submit:not(.disable):hover::after, .copy-link-div > button:not(.disable):hover::after {
+    border: 0px solid var(--cwhite);
+    transition: all 300ms;
+}
+
+.tags-scroll {
+    display: flex;
+    max-width: 100%;
+    overflow-x: scroll;
+}
+
+.tags {
+    white-space: nowrap;
+}
+
+.tags > :first-child {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#image-form {
+    margin-top: 15px;
+}
+
+.form-bottom {
+    display: flex;
+    padding: 0 15px 15px;
+    align-items: center;
+}
+
+.copy-link-div {
+    display: flex;    
+    height: fit-content;
+}
+.copy-link-div > p {
+    border: 2px solid var(--clight);
+}
+
+.copy-link-div > button {
+    border-radius: 10px;
+    margin: 2px;
+}

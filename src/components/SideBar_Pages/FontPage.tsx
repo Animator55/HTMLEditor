@@ -7,6 +7,7 @@ import { getFontsList } from "../../logic/APIs";
 import { AuthAlertContext } from '../../App';
 
 import "../../assets/css/itemList.css"
+import { GlobalFunctions } from "../../screens/AdminEditor";
 
 let RequestTimes = 0
 const sortFilters = {"alpha": "Alfabético", "date": "Actualizado", "popularity": "Popularidad", "trending": "Tendencia"}
@@ -15,11 +16,14 @@ let fontPage = 0
 let fontSearch = ""
 let sortValue = "popularity"
 
-export default function SideBarFont ({selectedFonts, mainFont, setMainFont}){
+export default function SideBarFont ({selectedFonts}){
     const [fontsList, setFontsList] = React.useState([])
     const [refresh, activateRefresh] = React.useState(false)
 
+    let selectedArray = Object.keys(selectedFonts)
+
     const activateAlert = React.useContext(AuthAlertContext)
+    const Global = React.useContext(GlobalFunctions)
     const selectedSpan = React.useRef()
 
     /// Get Data
@@ -104,95 +108,91 @@ export default function SideBarFont ({selectedFonts, mainFont, setMainFont}){
     function FontsList () {
         if(fontsList.length === 0) return <div>Error</div>
         let newList = fontsList.map((font, i)=>{
-            return (
-                <div 
-                    key={Math.random()} 
-                    className={selectedFonts.includes(font.family) ? "item-of-list item-of-list-active" : "item-of-list"} 
-                    onClick={()=>{
-                        if(selectedFonts.includes(font.family))
-                            selectedFonts.splice(selectedFonts.indexOf(font.family), 1)
-                        else selectedFonts.push(font.family)
-                        activateRefresh(!refresh)
-                    }}
+            return <div 
+                    className={selectedArray?.includes(font.family) ? "list-item-editor selected" : "list-item-editor"}
+                    key={Math.random()}
                 >
-                    <div>#{i+(fontPage*30)}</div>
-                    <div style={{fontFamily: font.family}}>{font.family}</div>
-                    <FontAwesomeIcon icon={selectedFonts.includes(font.family) ? faCheck : faPlus}/>
-                </div>)
+                    <button>
+                        <p>#{i+(fontPage*30)}</p>
+                        <p style={{fontFamily: font.family}}>{font.family}</p>
+                    </button>
+                    <button onClick={()=>{
+                        if(selectedArray.includes(font.family))
+                            delete selectedFonts[font.family]
+                        else selectedFonts[font.family] = {...font}
+                        activateRefresh(!refresh)
+                    }}>
+                        <FontAwesomeIcon icon={selectedArray.includes(font.family) ? faCheck : faPlus}/>
+                    </button>
+                </div>
         })
 
-        return <div className="fonts-list">{newList}</div>
+        return <ul className="item-list-editor">{newList}</ul>
     }
 
     function SelectedList (){
         return (<>
             <div className="custom-font-list span-column" ref={selectedSpan}>
-                {selectedFonts.length > 0 ? <>
+                {selectedArray?.length > 0 ? <>
                     <button 
-                        onClick={(e)=>{selectedSpan.current.classList.toggle("expanded", !selectedSpan.current.classList.contains("expanded"))}}
+                        onClick={(e)=>{selectedSpan.current.classList.toggle("expanded")}}
                         className="d-flex align-center" 
                     >
                         <FontAwesomeIcon icon={faFont}/>
-                        <div className="margin-auto">Fuentes Seleccionadas {`(${selectedFonts.length})`}</div>
+                        <div className="margin-auto">Fuentes Seleccionadas {`(${selectedArray.length})`}</div>
                         <FontAwesomeIcon icon={faCaretDown}/>
                     </button>
-                    <div>
-                        {selectedFonts.map((customFont, i)=>{
-                            return (
-                                <div className="d-flex align-center" key={Math.random()} >
-                                    <div 
-                                        className="item-of-list" 
-                                        style={{margin: "10px 25px", fontFamily: customFont}} 
-                                        onClick={(e)=>{
-                                            if(e.target.className === "item-of-list") {
-                                                let selectlist = e.target.parentElement.parentElement.children
-                                                let bool = e.target.lastChild.classList.contains("d-none")
-                                                for (let i = 0; i < selectlist.length; i++) {
-                                                    selectlist[i]?.firstChild?.lastChild?.classList?.add("d-none")
-                                                }
-                                                e.target.lastChild?.classList?.toggle("d-none", !bool)
-                                                setMainFont(mainFont === customFont ? undefined : customFont) 
-                                            }
-                                        }}
-                                    >
-                                        #{i+1}
-                                        <div></div>
-                                        {customFont}
-                                        <FontAwesomeIcon icon={faStar} className={mainFont === customFont ? "main-font": "main-font d-none"}/>
-                                    </div>
-                                    <FontAwesomeIcon 
-                                        icon={faXmark} 
-                                        onClick={()=>{
-                                            let index = selectedFonts.indexOf(customFont)
-                                            selectedFonts.splice(index, 1)
-                                            selectedSpan.current?.lastChild?.removeChild(selectedSpan.current?.lastChild?.children[index])
-                                        }} 
-                                        className="margin-right-1rem"/>
-                                </div>)
+                    <div className="item-list-editor">
+                        {selectedArray.map((customFont, i)=>{
+                            return <div 
+                                className="list-item-editor"
+                                key={Math.random()}
+                            >
+                                <button 
+                                    onClick={(e)=>{
+                                        if(!e.target.lastChild.classList.contains("d-none")) return
+                                        let selectlist = e.target.parentElement.parentElement.children
+                                        for (let i = 0; i < selectlist.length; i++) {
+                                            selectlist[i]?.firstChild?.lastChild?.classList?.add("d-none")
+                                        }
+                                        e.target.lastChild?.classList?.remove("d-none")
+                                        Global.mainFont.setMainFont(customFont) 
+                                    }}>
+                                    <p style={{fontFamily: customFont}}>{customFont}</p>
+                                    <FontAwesomeIcon icon={faStar} className={Global.mainFont.font === customFont ? "main-font": "main-font d-none"}/>
+                                </button>
+                                <button onClick={()=>{
+                                    let index = selectedArray.indexOf(customFont)
+                                    delete selectedFonts[customFont]
+                                    selectedSpan.current?.lastChild?.removeChild(selectedSpan.current?.lastChild?.children[index])
+                                    activateRefresh(!refresh)
+                                }} >
+                                    <FontAwesomeIcon icon={faXmark}/>
+                                </button>
+                            </div>
                         })}
                         <ScrollBottom/>
                     </div> 
                 </>: null}
             </div>
-            <button 
-                className="custom-font-list-btn"
-                style={!selectedSpan.current?.classList?.contains("expanded") ? {color: "var(--cpurple)"} : {display: "none"}} 
-                onClick={()=>{selectedSpan.current?.classList?.toggle("expanded", !selectedSpan.current?.classList?.contains("expanded"))}}
-            >
-                <FontAwesomeIcon icon={faFont} style={{marginRight: 10}}/>
-                Fuentes Seleccionadas {` (${selectedFonts.length})`}
-            </button>
         </>)
     }
 
     return (
-        <div>
+        <div className="component-editor">
             <SearchBar/>
             {fontsList.length !== 0 ? 
                 <>
                     <PageSelector/>
                     <FontsList/>
                     <SelectedList/>
+                    <button 
+                        className="custom-font-list-btn"
+                        onClick={()=>{selectedSpan.current?.classList?.toggle("expanded", !selectedSpan.current?.classList?.contains("expanded"))}}
+                    >
+                        <FontAwesomeIcon icon={faFont} style={{marginRight: 10}}/>
+                        Fuentes Seleccionadas {` (${selectedArray?.length})`}
+                    </button>
                 </>
             : <FontAwesomeIcon icon={faCircleNotch} spin style={{fontSize: "xx-large", cursor: "progress"}}/>}
         </div>)

@@ -1,71 +1,138 @@
-import { faPlay, faSquare } from "@fortawesome/free-solid-svg-icons"
+import { faImage, faLock, faObjectGroup, faPager, faPhotoFilm, faPlay, faScroll, faSearch, faShapes, faSquarePollHorizontal, faSquareShareNodes, faVectorSquare } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
+// import { Place } from "../RenderComponents/Modules"
 import ContinueLoop from "./jsonTreeGeneratorLoop"
-import { Placeholder } from "./jsxParser"
-import { htmlComponent } from "../vite-env"
+import { ToastContext } from "../App";
+import { GlobalFunctions } from "../screens/AdminEditor"
 
+let moduleTypes = {
+    "Container": faObjectGroup,
+    "Columns": faSquarePollHorizontal,
+    "Header": faPager,
+    "Text": faScroll,
+    "Logo": faShapes,
+    "SearchBar": faSearch,
+    "SocialProfiles": faSquareShareNodes,
+    "Image": faImage,
+    "ProductsGrid": faPhotoFilm
+}
 
-type PropsPlace = {
-    props: {
-        array: Array<htmlComponent | "placeholder">
-        selectItem: Function
-        parentIndex?: string
+const setType = (type) => {
+    switch (type) {
+        case "Navigation":
+        case "Container":
+        case "Footer":
+        case "Header":
+        case "ProductsGrid":
+            return "container"
+        case "Columns":
+            return "columns"
+        default:
+            return "module"
     }
 }
 
-export default function RenderLevel({ props }: PropsPlace) {
+// const checkOpen = (id, selected)=>{
+//     if(id === undefined || selected === undefined) return "close-span"
+//     let Access = id.split("-")
+//     let Selected = selected.split("-")
+//     if(Access.length < Selected.length){
+//         let result = Access.every((num, index)=>{
+//             return num === Selected[index]
+//         })
+//         return result ? "close-span open-span" : "close-span"
+//     }
+//     return "close-span"
+// }
+
+export default function RenderLevel(props) {
+    const activateToast = React.useContext(ToastContext)
+    const GlobalFunc = React.useContext(GlobalFunctions)
+
+    const selectIcon = (type) => {
+        let icon = moduleTypes[type]
+        if (icon === undefined) return faVectorSquare
+
+        return icon
+    }
+
     let idLocal = 0
+    if (!props.array) return
     props.array.map((el, i) => { if (el === "placeholder") props.array.splice(i, 1) })
 
-    let JSX = props.array.map((component: htmlComponent | "placeholder") => {
+    let JSX = props.array.map((component) => {
         if (component === "placeholder") return
         idLocal++
-        let completeid = props.parentIndex !== undefined ? props.parentIndex + "-" + (idLocal - 1) : `${idLocal}`
-        return <React.Fragment key={Math.random()}>
-            <Placeholder props={{ dNone: true, moduleKey: completeid + "." }} />
-            <div id={completeid} className="close-span">
-                <div className="align-center d-flex-row">
-                    <FontAwesomeIcon
-                        icon={component.components.length !== 0 ? faPlay : faSquare}
-                        onClick={(e: React.MouseEvent) => {
-                            let target = e.target as HTMLDivElement
-                            if (!target || target.childElementCount !== 0 || component.components.length === 0) return
-                            target.parentElement!.parentElement!.parentElement!.classList.toggle(
-                                "open-span",
-                                !target.parentElement!.parentElement!.parentElement!.classList.contains("open-span")
-                            )
-                        }}
-                    />
+        let completeid = props.preRenderIndex !== undefined ? props.preRenderIndex : props.parentIndex !== undefined ? props.parentIndex + "-" + (idLocal - 1) : `${idLocal}`
+        return (<React.Fragment key={Math.random()}>
+            {/* {props.generatePlaces ? <Place dNone moduleKey={completeid + "."} /> : null} */}
+            <li
+                fixed={`${props.fixedComponents.includes(component?.type)}`}
+                className="close-span"
+                onDrop={(e) => {
+                    if (document.body.attributes?.dragging?.value === undefined) return
+                    let id = document.body.attributes?.dragging?.value?.split(".")[1]
+                    let renderedModule = document.querySelectorAll(`.dragging[id="${id}"][draggable="true"]`)[1]
+                    if (renderedModule !== null && renderedModule !== undefined) renderedModule.classList.remove("dragging")
+                }}
+            >
+                <div className="comp-wraper">
                     <button
+                        className="comp-selector"
                         id={`${completeid}`}
-                        onClick={(e) => { props.selectItem(e, component) }}
+                        select={`${props.selected === `${completeid}`}`}
+                        onClick={() => { GlobalFunc.selectComponent(completeid) }}
                         draggable
-                        onDragStart={(e: React.DragEvent) => {
-                            let target = e.target as HTMLDivElement
-                            if (!target) return
-                            e.dataTransfer.setData("Text", target.id);
-                            target.classList.add("dragging")
+                        type={setType(component.type)}
+                        onDragStart={(e) => {
+                            e.dataTransfer.setData("Text", e.target.id);
+                            e.target.classList.add("dragging")
+                            let renderedModule = document.querySelector(`*[id="${e.target.id}"][draggable="true"]:not(.dragging)`)
+                            if (renderedModule !== null && renderedModule !== undefined) renderedModule.classList.add("dragging")
                         }}
                         onDragEnd={(e) => {
-                            let target = e.target as HTMLDivElement
-                            if (target) target.classList.remove("dragging")
+                            e.target.classList.remove("dragging")
+                            let renderedModule = document.querySelector(`.dragging[id="${e.target.id}"][draggable="true"]`)
+                            if (renderedModule !== null && renderedModule !== undefined) renderedModule.classList.remove("dragging")
                         }}
                     >
-                        <div id={`${completeid}`}>{"div" + ` (${completeid})`}</div>
+                        <FontAwesomeIcon icon={selectIcon(component.type)} />
+                        <p>{component.type + ` (${completeid})`}</p>
                     </button>
+
+                    {component.components !== undefined ? <button
+                        className={props.fixedComponents.includes(component.type) ? "comp-opener disabled" : "comp-opener"}
+                        onClick={(e) => {
+                            if (props.fixedComponents.includes(component.type)) activateToast([true, { title: "Fixed!", text: `This component is immutable. Its children cannot be edited.`, result: "info" }])
+                            e.target.parentElement.parentElement.classList.toggle("open-span")
+                        }}
+                        onDragEnter={(e) => {
+                            if (props.fixedComponents.includes(component.type)) return
+                            e.target.parentElement.parentElement.classList.toggle("open-span")
+                        }}
+                    >
+                        <FontAwesomeIcon icon={props.fixedComponents.includes(component.type) ? faLock : faPlay} />
+                    </button> : null}
+
                 </div>
-                <div className="comp-list">
-                    <ContinueLoop props={{
-                        ...props,
-                        parentIndex: completeid,
-                        array: component.components,
-                    }} />
-                </div>
-            </div>
-        </React.Fragment>
+
+                <ul className="comp-list" id={completeid}>
+                    <ContinueLoop
+                        props={{
+                            ...props,
+                            parentIndex: completeid,
+                            array: component.components,
+                            generatePlaces:true
+                        }}
+                    />
+                </ul>
+            </li>
+        </React.Fragment>)
     })
     let lastid = props.parentIndex !== undefined ? props.parentIndex + "-" + idLocal : `${idLocal + 1}`
-    return <>{JSX}<Placeholder props={{ dNone: true, moduleKey: lastid + "." }} /></>
+    return (<>{JSX}
+    {/* {props.generatePlaces ?<Place key={Math.random()} dNone moduleKey={lastid + "."} /> : null} */}
+    </>)
 }
 
