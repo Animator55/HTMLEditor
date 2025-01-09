@@ -8,7 +8,7 @@ type Props = {
 type PropsPlace = {
     props: any
 }
-const Placeholder = ({ props }: PropsPlace) => {
+export const Placeholder = ({ props }: PropsPlace) => {
     const globals = React.useContext(GlobalFunctions)
 
     return <div className={props.dNone ? "d-none drop-place" : "drop-place"}>

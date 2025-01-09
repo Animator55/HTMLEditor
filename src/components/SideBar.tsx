@@ -1,7 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faHome, faKey, faCartShopping, faToolbox, faUserTie, faCircleInfo, faList, faGear, faArrowRightFromBracket, faListNumeric, faFilePen, faPenRuler, faArrowLeft, faCircleXmark, faCheck, faTrash, faExclamationTriangle, faFolderTree, faFont, faMinus, faCircleNotch, faArrowRight, faMagnifyingGlass, faXmark, faStar, faArrowDownWideShort, faSearch, faSquareShareNodes, faWindowRestore, faLock, faCaretUp, faPen, faClapperboard, faCopy, faTag } from '@fortawesome/free-solid-svg-icons'
-// import JSONTreeComponent from "./SideBar_Pages/JSONTreePage";
 // import SideBarFont from "./SideBar_Pages/FontPage";
 // import SideBarClasses from "./SideBar_Pages/ClassPage";
 // import SideBarAnimations from "./SideBar_Pages/AnimationPage";
@@ -13,16 +12,23 @@ import selectInJson from "../logic/jsonTreeSelector";
 
 import "../assets/sidebar.css";
 import "../assets/sidebarEdit.css";
+import { htmlComponent } from "../vite-env";
+import JSONTreeComponent from "./SideBar_Pages/JSONTreePage";
+
+type Props = {
+    JSONTree: {content: htmlComponent[]}
+    selected: string
+    setSelected: Function
+}
 ///////////
-let customFontList = ["Bakbak One", "ABeeZee"]
+// let customFontList = ["Bakbak One", "ABeeZee"]
 //////////
 
-let mainFont= ""
-const setMainFont = (val:string)=>{mainFont = val}
+// let mainFont= ""
+// const setMainFont = (val:string)=>{mainFont = val}
 
-export default function SideBar({mode, JSONTree, selected, setSelected,fixedComponents,staticComponents}) {
-    let editionModeSideBar = mode === "editor";
-    const LocalJSON = editionModeSideBar || mode === "componentEditor"? JSONTree : undefined
+export default function SideBar({ JSONTree, selected, setSelected}: Props) {
+    const LocalJSON = JSONTree
     const [sideBarWidth, setSideBarWidth] = React.useState(300)
     const [editorMode, setEditorMode] = React.useState({});
     const [editorSize, setEditorSize] = React.useState({ x: sideBarWidth - 21, y: 300 });
@@ -56,7 +62,7 @@ export default function SideBar({mode, JSONTree, selected, setSelected,fixedComp
         document.addEventListener('mouseup', dragEnd);
     }
     
-    const selectedFonts = customFontList
+    // const selectedFonts = customFontList
     let editor
     editor = selected !== undefined && editor?.key !== selected ? selectInJson(selected, LocalJSON) : undefined
 
@@ -70,7 +76,7 @@ export default function SideBar({mode, JSONTree, selected, setSelected,fixedComp
     }
 
     let JSX;
-    function SideBarSelector(page) {
+    function SideBarSelector(page:string) {
         switch(page){
             case "Components":
                 return (
@@ -84,13 +90,10 @@ export default function SideBar({mode, JSONTree, selected, setSelected,fixedComp
                         </button>
                     </div>
                     <div className="json-tree">
-                        {/* <JSONTreeComponent 
+                        <JSONTreeComponent
                             JSONTree={JSONTree} 
-                            fixedComponents={editionModeSideBar ? fixedComponents : []}
-                            staticComponents={staticComponents}
                             selectItem={selectItem} 
-                            generatePlaces={editionModeSideBar}
-                        /> */}
+                        />
                     </div>
                     {/* {editor !== undefined ? (
                         <EditorParser
@@ -129,17 +132,16 @@ export default function SideBar({mode, JSONTree, selected, setSelected,fixedComp
         <div className="side-bar-drag" style={{left: sideBarWidth}} onMouseDown={resizeSideBar}></div>
         <div className="side-bar edit" style={{minWidth: sideBarWidth, maxWidth: sideBarWidth}}>
             <div>
-                <h2 className="side-bar-title">Editor de {editionModeSideBar ? "Sitio" : "Componentes"}</h2>
+                <h2 className="side-bar-title">HTML Editor</h2>
             </div>
-            {JSONTree !== undefined ? <>
+            {JSONTree && <>
                 {/* <PagesButtons 
                     displayAll={editionModeSideBar} 
                     sideBarPage={sideBarPage} 
                     setSideBarPage={setSideBarPage}
                 />  */}
                 {SideBarSelector(sideBarPage)}
-            </>
-            : null}
+            </>}
         </div> 
     </>)
     return JSX
