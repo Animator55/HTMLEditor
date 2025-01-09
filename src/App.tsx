@@ -8,16 +8,14 @@ import "./assets/adminEditor.css"
 import checkMoveToChild from "./logic/checkMoveToChild";
 import ComponentsRender from "./logic/jsxParser";
 import { JSONLocationSearch } from "./logic/jsonTreeSelector";
+import { htmlComponent } from "./vite-env";
 
-/////
-let fixedComponents: string[] = []
-let staticComponents: string[] = []
-/////
+
 let moduleTypes = ["Text", "Logo", "SearchBar", "Image", "Módulo", ""]
 let ComponentsTree = ["Container", "Columns", "Header", "Text", "Logo", "Image", "Form", "SearchBar", "SocialProfiles"]
 
 document.body.setAttribute("dragging", "undefined");
-const JSON = {
+const JSON : {content: htmlComponent[]} = {
   content: [
     {
       comp_id: "1", classes: "",
@@ -51,7 +49,7 @@ export default function AdminEditor() {
 
   const [selected, setSelected] = React.useState<string | undefined>(undefined)
 
-  function handleSetSelected(key: string, provinence: boolean) {
+  function handleSetSelected(key: string, provinence?: boolean) {
     //provinence: if(true) modules; else sidebar > jsontree || editor;
     if (provinence) { if (key !== undefined && key !== selected) setSelected(key) }
     else setSelected(key)
@@ -161,8 +159,6 @@ export default function AdminEditor() {
 
   //editor site/comp variables
 
-  let renderJSON = JSON
-
   // Object.keys(JSONtemplate.views)
 
   ///components
@@ -218,12 +214,9 @@ export default function AdminEditor() {
         changeJSON: changeJSON,
       }}>
         <SideBar
-          mode={"editor"}
-          JSONTree={renderJSON}
+          JSONTree={JSON}
           selected={selected}
           setSelected={handleSetSelected}
-          staticComponents={staticComponents}
-          fixedComponents={fixedComponents}
         />
         <div>
           {/* <NavBar type={"editor"} span={navBarSelector} JSON={JSON} /> */}
@@ -241,10 +234,10 @@ export default function AdminEditor() {
                 onDrop={DragEndDrop}
                 onDragEnd={DragEndDrop}
               >
-                {renderJSON && <ComponentsRender
+                {JSON && <ComponentsRender
                   props={{
-                    components: renderJSON.content,
-                    select: selected,
+                    components: JSON.content,
+                    selected: selected,
                   }}
                   setSelected={handleSetSelected}
                 />}

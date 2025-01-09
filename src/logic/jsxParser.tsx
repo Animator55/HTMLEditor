@@ -45,6 +45,7 @@ export default function ComponentsRender({ props, setSelected }: Props) {
             completeid = props.parentIndex + "-" + innerAccKey
             innerAccKey++
         }
+        console.log(props.selected, completeid)
         return <React.Fragment key={Math.random()}>
             <Placeholder props={{
                 moduleKey: completeid + ".",
@@ -53,6 +54,7 @@ export default function ComponentsRender({ props, setSelected }: Props) {
             <div
                 key={Math.random()}
                 id={completeid}
+                data-select={`${props.selected === completeid}`}
                 className={module.classes}
                 style={module.style}
                 draggable={"true"}
@@ -72,7 +74,7 @@ export default function ComponentsRender({ props, setSelected }: Props) {
                 }}
             >
                 {module.textContent}
-                <ComponentsRender props={{ ...module, parentIndex: completeid }} setSelected={setSelected} />
+                <ComponentsRender props={{ ...module, parentIndex: completeid, selected: props.selected }} setSelected={setSelected} />
             </div>
         </React.Fragment>
     })
