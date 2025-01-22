@@ -22,13 +22,7 @@ const selectIcon = (type) => {
     return icon
 }
 
-let ComponentsDefault = {
-    Containers: ["Container", "Columns", "Header", "Grid"], 
-    Text: ["Text", "H1", "H2", "H3", "H4", "H5", "H6"], 
-    Multimedia: ["Image", "Video", "GIF", "Gallery", "Slider"],
-    Interactive: ["Button", "Input", "Select", "Form", "SearchBar", "Sort", "SocialProfiles", "ProductsGrid"],
-    Custom: []
-}
+let ComponentsDefault = ["Container","Text","Image"]
 let requestCounter = 0
 
 function TemplatesList ({templatesList}){
@@ -80,7 +74,7 @@ export default function ComponentPicker ({}){
         //     default: 
         //         setCustomList(jsonContent[0])
         // }
-        ComponentsDefault.Custom.push("Navigation", "Footer")
+        // ComponentsDefault.Custom.push("Navigation", "Footer")
     }
 
     const icons = {
@@ -95,19 +89,7 @@ export default function ComponentPicker ({}){
     else requestCounter = 0
     return <section className="component-editor">
         <section className="editor-form">
-            <nav>
-                {Object.keys(ComponentsDefault).map(page=>{
-                    return <button 
-                        key={Math.random()} 
-                        onClick={()=>{setPage(page)}} 
-                        className={Page === page ? "selected-page" : ""}
-                    >
-                        <FontAwesomeIcon icon={icons[page]}/>
-                        <p>{page}</p>
-                    </button>
-                })}
-            </nav> 
-            <TemplatesList templatesList={ComponentsDefault[Page]}/>
+            <TemplatesList templatesList={ComponentsDefault}/>
         </section>
     </section>
 }

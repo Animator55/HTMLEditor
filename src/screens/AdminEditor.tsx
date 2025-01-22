@@ -6,18 +6,17 @@ import "../assets/css/adminEditor.css"
 import ComponentsRender from '../logic/jsxParser';
 import selectInJson, { JSONLocationSearch } from "../logic/jsonTreeSelector";
 import checkMoveToChild from "../logic/checkMoveToChild";
-import { AuthAlertContext, ToastContext } from "../App";
 import { templates } from "../RenderComponents/Templates";
 import * as api from "../logic/APIs"
 import PopEditor from "../components/PopEditor";
-import AddFontToDoc from "../logic/AddFontToDoc";
 import EditorContainer from "../components/EditorContainer";
-import ReSize from "../components/ReSize";
-import activateDragPage from "../logic/editorMoves";
-import TrashCan from "../components/TrashCan";
 import Zoom from "../components/Zoom";
+import TrashCan from "../components/TrashCan";
+import activateDragPage from "../logic/editorMoves";
+import AddFontToDoc from "../logic/AddFontToDoc";
+import ReSize from "../components/ReSize";
 
-const setDragging = (val) => {
+const setDragging = (val: string) => {
     document.body.setAttribute("dragging", val);
 }
 setDragging("undefined");
@@ -48,8 +47,8 @@ let customFontList = {
 
 AddFontToDoc(customFontList)
 
-let mainFont
-const setMainFont = (val) => { mainFont = val }
+let mainFont: string | undefined = undefined
+const setMainFont = (val: string) => { mainFont = val }
 let customClassList = [
     { "name": "class-1", "display": "Desktop", "style": [], "hover": [] },
     { "name": "class-2", "display": "Desktop", "style": [{ key: "position", value: "absolute" }], "hover": [] },
@@ -60,29 +59,49 @@ let customClassList = [
 ]
 let zoom = 0.7
 let resolution = { x: window.innerWidth, y: window.innerHeight }
-let notAllowedMoves = {}
+let notAllowedMoves: { [key: string]: any } = {}
 
-export const GlobalFunctions = React.createContext(null);
+export const GlobalFunctions = React.createContext<{
+    moveComponent: Function
+    JSONLocationSearch: Function
+    changeJSON: any
+    activatePopEditor: Function
+    selectComponent: Function
+    selectClass: Function
+    cssNames: any
+    selectedClass: any
+    changeCss: Function
+    mainFont: {font: string, setMainFont: Function}
+}>({
+    moveComponent: (e: string) => { console.log(e) },
+    JSONLocationSearch: (e: string) => { console.log(e) },//
+    changeJSON: {},//
+    activatePopEditor: (e: string) => { console.log(e) },
+    selectComponent: (e: React.MouseEvent, provinence: boolean) => { console.log(e, provinence) },
+    selectClass: (e: number) => { console.log(e) },
+    cssNames: {},
+    selectedClass: undefined,//
+    changeCss: (e: string) => { console.log(e) },//
+    mainFont: { "font": "", setMainFont: (e: string) => { console.log(e) } }
+});
 
-let selected
+let selected: any | undefined = undefined
 
-export default function AdminEditor({ type }) {
-    let AdminEditor = type === "editor"
-    const [JSONView, setJSON] = React.useState()
-    const [views, setViews] = React.useState([])
+export default function AdminEditor() {
+    let AdminEditor = true
+    const [JSONView, setJSON] = React.useState<any>(undefined)
     const [refresh, activateRefresh] = React.useState(false)
-    const [selectedClass, setClass] = React.useState()
+    const [selectedClass, setClass] = React.useState<number | undefined>(undefined)
 
-    const activateAlert = React.useContext(AuthAlertContext)
-    const activateToast = React.useContext(ToastContext)
-
-    const AppCont = React.useRef()
-    const PopEditorRef = React.useRef()
-    const EditorRef = React.useRef()
-    const Container = React.useRef()
+    const AppCont = React.useRef<HTMLDivElement | null>(null)
+    const PopEditorRef = React.useRef<HTMLDivElement | null>(null)
+    const EditorRef = React.useRef<HTMLDivElement | null>(null)
+    const Container = React.useRef<HTMLDivElement | null>(null)
 
     const removeSelects = () => {
-        AppCont.current.firstChild.classList.add("d-none")
+        if (!AppCont.current) return
+        let firstChild = AppCont.current.firstChild as HTMLDivElement
+        firstChild.classList.add("d-none")
         //querySelector can be replaced if "event.target" was in parameters, but not in json-tree
         let rendered = document.querySelector(`.edit-screen [select="true"]`)
         let sideRender = document.querySelector(`.side-bar [select="true"]`)
@@ -90,7 +109,7 @@ export default function AdminEditor({ type }) {
         if (sideRender !== null) sideRender.setAttribute("select", "false")
     }
 
-    const addSelect = (key, e) => {
+    const addSelect = (key: string, e) => {
         const calcuteCoords = () => {
             if (e.pageY === 0) return
             let resultX = e.pageX - e.nativeEvent.offsetX * zoom - 1
@@ -106,7 +125,7 @@ export default function AdminEditor({ type }) {
         document.querySelector(`.side-bar [id="${key}"]`)?.setAttribute("select", "true")
     }
 
-    const setSelected = (key, e) => {
+    const setSelected = (key: string | undefined, e?) => {
         Container["page"] = "Editor"
         if (selected === undefined) {
             EditorRef.current.classList.remove("d-none")
@@ -133,7 +152,7 @@ export default function AdminEditor({ type }) {
         Container.current.classList.add("expanded")
     }
 
-    const setSelectedClass = (index) => {
+    const setSelectedClass = (index: number | undefined) => {
         if (index === undefined) {
             Container.display = false
             Container.current.classList.remove("expanded")
@@ -142,34 +161,25 @@ export default function AdminEditor({ type }) {
     }
 
     const getJSON = () => {
-        let jsonContent = api["getViews"].call(this, "0dbb67c854d308c7f3d4e45d")
-        switch (jsonContent) {
-            case "auth":
-                activateAlert(true)
-                break
-            case false:
-                setJSON()
-                activateToast([true, { title: "Error!", text: "Cannot request the list, please try later.", result: "error" }])
-                break
-            default:
-                setJSON(jsonContent[0])
-                setViews(jsonContent[1])
-        }
+        let jsonContent = api.getViews()
+        setJSON(jsonContent)
     }
     let JSONLoaded = JSONView !== undefined
 
     if (!JSONLoaded) { requestCounter++; if (requestCounter < 2) getJSON() }
     else requestCounter = 0
 
-    function handleSetSelected(e, provinence) {
+    function handleSetSelected(e: React.MouseEvent, provinence: boolean) {
+        console.log(provinence)
         //provinence: if(true) modules; else sidebar > jsontree || editor;
-        if (e?.target?.id === undefined) return
-        let key = e.target.id
+        let target = e.target as HTMLDivElement
+        if (!target || target.id === undefined) return
+        let key = target.id
         setSelected(key, e)
     }
 
     const editClassList = {
-        create: (name) => {
+        create: (name: string | undefined) => {
             let id = (Math.random()).toString()
             id = id.slice(2, 6)
             customClassList.push({
@@ -180,54 +190,54 @@ export default function AdminEditor({ type }) {
             })
             setSelectedClass(customClassList.length - 1)
         },
-        delete: (index) => {
+        delete: (index: number) => {
             customClassList.splice(index, 1)
-            if (selectedClass !== undefined) setSelectedClass()
+            if (selectedClass !== undefined) setSelectedClass(undefined)
             else activateRefresh(!refresh)
         },
-        edit: (data, index) => {
+        edit: (data: { name: string, display: string, style: { key: string; value: string; }[], hover: { key: string; value: string; }[] }, index: number) => {
             let Class = { name: data.name, display: data.display, style: data.style, hover: data.hover }
             customClassList.splice(index, 1, Class)
             activateRefresh(!refresh)
         }
     }
 
-    const convertToSplit = (string) => {
+    const convertToSplit = (string: string) => {
         let splited = string.split("-")
-        splited[0] = AdminEditor ? splited[0] - 1 : 0
+        splited[0] = `${parseInt(splited[0]) - 1}`
         return splited
     }
 
     const changeJSON = {
-        create: (target, type) => {
+        create: (target: string, type: string) => {
             let newBlock = templates[type]
             let parsedComponent = JSON.parse(newBlock)
             let Target = convertToSplit(target)
             let location = JSONLocationSearch(Target, JSONView)
             location.splice(Target[Target.length - 1], 0, parsedComponent)
-            if (selected !== undefined) setSelected()
+            if (selected !== undefined) setSelected(undefined)
             else activateRefresh(!refresh)
         },
-        delete: (target) => {
+        delete: (target: string) => {
             let Target = convertToSplit(target)
-            if (!AdminEditor && Target.length === 1)
-                return activateToast([true, { title: "Info!", text: "Cannot delete component core, please do it in the list.", result: "error" }])
             let location = JSONLocationSearch(Target, JSONView)
             location.splice(Target[Target.length - 1], 1)
-            if (selected !== undefined) setSelected()
+            if (selected !== undefined) setSelected(undefined)
             else activateRefresh(!refresh)
         },
-        edit: (target, data) => {
+        edit: (target: string, data: { data: any }) => {
             let Target = convertToSplit(target)
             let location = JSONLocationSearch(Target, JSONView)
             Object.assign(location[Target[Target.length - 1]].data, data.data)
         }
     }
 
-    function moveComponent(e) {
+    function moveComponent(e: React.DragEvent<HTMLDivElement>) {
         setDragging("undefined");
         let source = e.dataTransfer.getData("Text");
-        let target = e.target.id.slice(0, -1)
+        let div = e.target as HTMLDivElement
+        if(!div) return
+        let target = div.id.slice(0, -1)
         console.log("src:", source, "trg:", target)
         if (source === "" || source === target) return
         if (ComponentsTree.includes(source)) return changeJSON.create(target, source)
@@ -242,83 +252,71 @@ export default function AdminEditor({ type }) {
         let targetObj = JSONLocationSearch(Target, JSONView)
         targetObj.splice(Target[Target.length - 1], 0, removedComponent[0])
 
-        if (selected !== undefined) setSelected()
+        if (selected !== undefined) setSelected(undefined)
         else activateRefresh(!refresh)
     }
 
     const zoomAction = {
-        inc: () => { if (zoom < 1.9) { zoom += 0.1; AppCont.current.lastChild.style.transform = `scale(${zoom})` } },
-        dec: () => { if (zoom > 0.3) { zoom -= 0.1; AppCont.current.lastChild.style.transform = `scale(${zoom})` } }
+        inc: () => { if (AppCont.current && zoom < 1.9) { zoom += 0.1; AppCont.current.lastChild!.style.transform = `scale(${zoom})` } },
+        dec: () => { if (AppCont.current && zoom > 0.3) { zoom -= 0.1; AppCont.current.lastChild!.style.transform = `scale(${zoom})` } }
     }
 
-    function addDragEnterStyle(array: any[], bool: boolean) {
-        //this is bullshit, a hard to fix bullshit
+    function addDragEnterStyle(array: HTMLCollection) {
         if (array.length === 0
-            || array[0].classList.contains("drop-place-adaptable")
+            || array[0]?.classList?.contains("drop-place-adaptable")
             || (array[0].id === undefined && array[0].className !== "drop-place")) return
         for (let i = 0; i < array.length; i++) {
-            array[i].className = bool ? "drop-place-adaptable" : "drop-place"
+            array[i].className = "drop-place-adaptable"
             i++
         }
     }
 
-    const DragEnter = (e) => {
-        if (e.target.id === undefined
-            || e.target.id === ""
-            || document.body.getAttribute("dragging") === undefined)
+    const DragEnter = (e: React.MouseEvent) => {
+        let target = e.target as HTMLDivElement
+        if (!target || target.id === undefined
+            || target.id === ""
+            || document.body.getAttribute("dragging")! === undefined)
             return
-        let id = document.body.getAttribute("dragging")
-        if (!checkMoveToChild(id, e.target.id)) return
-        addDragEnterStyle([...e.target.children], true);
+        let [dragging, id] = document.body.getAttribute("dragging")!.split(".");
+        if (!checkMoveToChild(id, target.id)) return
+        let level = target.id.split("-")
+        let key = level[0] === "0" ? "0" : level.length
+        if (!notAllowedMoves[key]?.includes(dragging)) addDragEnterStyle(target.children);
     }
 
-    function DragEndDrop(e) {
-        if (document.body.getAttribute("dragging") === undefined) return
+    function DragEndDrop() {
+        if (document.body.getAttribute("dragging")! === undefined) return
         setDragging("undefined");
         activateRefresh(!refresh)
     }
     //editor site/comp variables
-
-    let viewIndex
-    let viewNames: string[] = []
-    // views.map((view, i)=>{
-    //     viewNames.push(view.name)
-    //     if(viewUrl === view._id || componentUrl === view._id) viewIndex = i
-    // })
-
-    let navBarSelector = {
-        "options": viewNames, "index": viewIndex,
-        "setOption": (index) => {
-            // let key = AdminEditor ? "page" : "v"
-            // window.location.search = "?" +key+ "=" + views[index]._id
-        }
-    }
     ///editors
 
-    const handlerSetMainFont = (val) => {
-        AppCont.current.lastChild.firstChild.innerHTML = AppCont.current.lastChild.firstChild.innerHTML.replace(mainFont, val)
-        setMainFont(val)
-    }
+    // const handlerSetMainFont = (val) => {
+    //     if(!AppCont.current) return
+    //     AppCont.current.lastChild.firstChild.innerHTML = AppCont.current.lastChild.firstChild.innerHTML.replace(mainFont, val)
+    //     setMainFont(val)
+    // }
 
     const activatePopEditor = (e) => {
         PopEditorRef["selected"] = e.target
         PopEditorRef?.current?.click()
     }
 
-    const confirmPopEditor = (resultHTML, entry) => {
+    const confirmPopEditor = (resultHTML: string, entry: string) => {
         if (entry === "Text") PopEditorRef.selected.innerHTML = resultHTML
         else PopEditorRef.selected.firstChild.src = resultHTML
         let key = convertToSplit(PopEditorRef.selected.id)
         let location = JSONLocationSearch(key, JSONView)
         //key
-        const keys = { "Text": "text", "Image": "src", "ProductsGrid": "src" }
+        const keys: { [key: string]: string } = { "Text": "text", "Image": "src", "ProductsGrid": "src" }
         //change json
         location[key[key.length - 1]].data[keys[entry]] = resultHTML
-        AppCont.current.addEventListener("mouseenter", (e) => { activateDragPage(e, AppCont, zoomAction) }, { once: true })
-        EditorRef.current.firstChild.click()
+        if (AppCont.current) AppCont.current.addEventListener("mouseenter", (e) => { activateDragPage(e, AppCont, zoomAction) }, { once: true })
+        if (EditorRef.current && EditorRef.current.firstChild) EditorRef.current.firstChild.click()
     }
 
-    const Resize = (id, changes) => {
+    const Resize = (id: string, changes: { width: number, height: number }) => {
         let Target = convertToSplit(id)
         let location = JSONLocationSearch(Target, JSONView)
         let data = {
@@ -333,7 +331,7 @@ export default function AdminEditor({ type }) {
         EditorRef.selected.click()
     }
 
-    const parseStylesArray = (array) => {
+    const parseStylesArray = (array: any[]) => {
         let styleString = "";
         let cssNames = []
         for (const el of array) {
@@ -368,25 +366,24 @@ export default function AdminEditor({ type }) {
                 { once: true })
     }, []);
 
-    console.log(customFontList)
 
     return <div className="screen d-flex-col" >
         <GlobalFunctions.Provider value={{
             moveComponent: moveComponent,
-            JSONLocationSearch: (id) => { return JSONLocationSearch(id, JSONView) },//
+            JSONLocationSearch: (id: string) => { return JSONLocationSearch(id, JSONView) },//
             changeJSON: changeJSON,//
             activatePopEditor: activatePopEditor,
             selectComponent: handleSetSelected,
             selectClass: setSelectedClass,
             cssNames: cssNames,
-            selectedClass: { ...customClassList[selectedClass], index: selectedClass },//
+            selectedClass: selectedClass ? { ...customClassList[selectedClass], index: selectedClass } : undefined,//
             changeCss: editClassList,//
-            mainFont: { "font": mainFont, setMainFont: handlerSetMainFont }
+            mainFont: { "font": mainFont, setMainFont: () => { } }
         }}>
-            <NavBar type={"editor"} span={navBarSelector} JSON={JSONView} addView={(view) => { if (view !== undefined) setViews([...views, { "_id": view._id, "name": view["Nombre"] }]) }} />
+            <NavBar JSONObj={JSONView} />
             <div className="d-flex">
                 <SideBar
-                    mode={type}
+                    mode={"editor"}
                     JSONTree={JSONView}
                     selected={selected}
                     createComponent={() => { Container["page"] = "Componentes"; Container.current.click() }}
@@ -395,9 +392,9 @@ export default function AdminEditor({ type }) {
                 />
                 <div className="app-cont" ref={AppCont}>
                     <ReSize EditorRef={EditorRef} AppCont={AppCont} Resize={Resize} />
-                    <TrashCan deleteModule={(module) => { changeJSON.delete(module) }} />
+                    <TrashCan deleteModule={(module: string) => { changeJSON.delete(module) }} />
                     <Zoom resolution={resolution} AppCont={AppCont} zoomAction={zoomAction} />
-                    {/* <PopEditor key={Math.random()} PopEditorRef={PopEditorRef} confirm={confirmPopEditor}/> */}
+                    <PopEditor key={Math.random()} PopEditorRef={PopEditorRef} confirm={confirmPopEditor} />
                     <div
                         className="edit-screen"
                         style={{
@@ -409,22 +406,18 @@ export default function AdminEditor({ type }) {
                     >
                         {css}
                         <div id="0"
-                            onDragStart={(e) => { setDragging(e.target.id) }}
+                            onDragStart={(e) => { setDragging(e.target.getAttribute("type") + "." + e.target.id) }}
                             onDragEnter={DragEnter}
                             onDragOver={(e) => { e.preventDefault() }}
                             onDrop={DragEndDrop}
                             onDragEnd={DragEndDrop}
                         >
-                            {JSONView !== undefined ?
+                            {JSONView !== undefined &&
                                 <ComponentsRender
-                                    props={{
-                                        generatePlaces: AdminEditor,
-                                        components: JSONView.content,
-                                        fixed: AdminEditor ? fixedComponents : "false",
-                                    }}
-                                    setSelected={handleSetSelected}
-                                />
-                                : null}
+                                    generatePlaces={AdminEditor}
+                                    components={JSONView.content}
+                                    fixed={AdminEditor ? fixedComponents : "false"}
+                                />}
                         </div>
                     </div>
                 </div>

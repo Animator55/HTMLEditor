@@ -328,7 +328,7 @@ body[dragging="undefined"] .delete-dnd {
 }
 .list-item-editor:hover, .list-item-editor.selected > button:first-child {
     transition: all 150ms;
-    background-color: #55016936;
+    background-color: var(--cpurple2);
     color: var(--cwhite);
 }
 

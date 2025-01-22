@@ -37,17 +37,17 @@ body {
     --nav-height: 40px;
     --app-height: calc(100dvh - var(--nav-height));
     margin: 0;
-    --cblack: #22162B;
-    --cdeep: #62206c;
-    --cpink: #E54F6D;
-    --cpurple: rgb(131, 47, 145);
-    --cpurple2: rgba(131, 47, 145, 0.4);
-    --cblue: #1E38AA;
-    --clighter: #eddaf5;
-    --clight: #D1B3DA;
-    --cwhite: #f7eefc;
-    --cgray: #e6deeb;
-    --cdarkgray: #beb9c2;
+    --cblack: #160c0c;
+    --cdeep: #3d0e0d;
+    --cpink: #df805a;
+    --cpurple: rgb(145, 78, 47);
+    --cpurple2: rgba(156, 91, 48, 0.4);
+    --cblue: #181513;
+    --clighter: #eeb398;
+    --clight: #f08959;
+    --cwhite: #f8dada;
+    --cgray: #ecceb6;
+    --cdarkgray: #c0a4a4;
     background-color: var(--cwhite);
     color: var(--cpurple);
     max-height: 100dvh;
@@ -97,7 +97,7 @@ button * {
 
 button:hover {
     transition: all 150ms;
-    background-color: #55016936;
+    background-color: #69010136;
 }
 
 a {
@@ -345,11 +345,6 @@ hr {
     align-content: flex-start;
 }
 
-.logo-xs {
-    width: 40px;
-    height: 40px;
-    background: url('../isologo.png') center / cover no-repeat;
-}
 .app-cont {
     border-top-left-radius: 20px;
     background-color: var(--cwhite);

@@ -3,7 +3,7 @@ import EditorParser from "./SideBar_Pages/EditorParser";
 import ClassEditor from "./ClassEditor";
 import SideBarClasses from "./SideBar_Pages/ClassPage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightToBracket, faBoxArchive, faClapperboard, faFilePen, faList, faPenToSquare, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightToBracket, faBoxArchive, faFilePen, faPenToSquare, faWandMagicSparkles, faWarning } from "@fortawesome/free-solid-svg-icons";
 import ComponentPicker from "./SideBar_Pages/ComponentPicker";
 
 export default function EditorContainer ({Container, EditorRef, editor, Class, setSelected, setSelectedClass, selectedFonts}){
@@ -37,12 +37,19 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
     let newClass
     if(ClassSelected) newClass = {"index": Class, "key": "Class"}
 
+    const Alert = ()=>{
+        return <section className="editor-warning">
+            <FontAwesomeIcon icon={faWarning}/>
+            <p>No hay clase seleccionada.</p>
+        </section>
+    }
+
     const pages = {
         "Editor":  <></>,
         "Class": ClassSelected ? <ClassEditor 
             classe={newClass} 
             setSelected={setSelectedClass}
-        /> : null,
+        /> : <Alert type="class"/>,
         "ClassList": <SideBarClasses/>,
         "Componentes": <ComponentPicker/>
     }

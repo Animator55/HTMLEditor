@@ -139,7 +139,7 @@
     transition: all 300ms;
 }
 
-.component-editor {
+.component-editor,.editor-warning {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -153,6 +153,18 @@
     padding-bottom: 0.5rem;
     position: relative;
     border-radius: 5px;
+}
+
+.editor-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+.editor-warning svg {
+    font-size: 2rem;
 }
 
 .app-cont > .component-editor {

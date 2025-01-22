@@ -51,7 +51,6 @@
     width: 55px;
     min-height: 55px;
     margin: 0 auto !important;
-    background: url('../logo.png') center / cover no-repeat;
 }
 
 .side-bar.small .btn-expand:hover > :last-child{

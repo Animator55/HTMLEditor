@@ -3,8 +3,16 @@ import { faArrowRightToBracket, faClapperboard, faFolderTree, faFont, faList } f
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export default function PagesButtons({displayAll, sideBarPage, setSideBarPage,setSideBarWidth}){
-    let Pages = {"General":"General","Components":"Componentes","Fonts":"Fuentes", "Animations" : "Animaciones"}
-    const Icons = {"General":faList,"Components":faFolderTree,"Fonts":faFont,"Animations": faClapperboard}
+    let Pages = {
+        // "General":"General",
+        "Components":"Componentes",
+        //  "Animations" : "Animaciones"
+        }
+    const Icons = {
+        // "General":faList,
+        "Components":faFolderTree,
+        // "Animations": faClapperboard
+    }
 
     if(!displayAll) {
         delete Pages["General"] 

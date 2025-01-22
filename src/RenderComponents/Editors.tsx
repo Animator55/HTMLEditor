@@ -403,84 +403,6 @@ function Styles({stylesProp, editHandle}) {
     </div>)
 }
 
-function TextSpan({stylesProp, text, editHandle, fonts}){
-    const [refresh, activateRefresh] = React.useState(false)
-
-    let styles = {
-        fontWeight: stylesProp.fontWeight,
-        fontSize: stylesProp.fontSize,
-        fontFamily: stylesProp.fontFamily,
-        textDecoration: stylesProp.textDecoration
-    }
-    let fontsLocal = [...Object.keys(fonts), ...fontsArray]
-    let textDecorationsArray = ["none", "underline", "line-through", "overline"]
-    return (<div>
-        <div>   
-            {Object.keys(styles).map(key => {
-                let val = styles[key]
-                let unit  
-                val = parseInt((styles[key].match(/\d+/g) === null ? "0" : styles[key].match(/\d+/g))[0]);
-                unit = styles[key].match(/[a-zA-Z%]+/g) === null ? [""] : styles[key].match(/[a-zA-Z%]+/g);
-                return <div 
-                    style={{display: "grid", gridTemplateColumns: "50% 50%"}}
-                    key={Math.random()}
-                    >
-                        <div style={{margin: "5px 0"}}>{languageDictionary['es'][key]}</div>
-                        {key !== "fontFamily" && key !== "textDecoration" ? 
-                            <div className="d-flex w-100" style={{margin: "5px 0 5px auto"}}>
-                                <input 
-                                    type={"number"} 
-                                    onBlur={(e)=>{editHandle("style", e.target.name, e.target.value + (unit[0] === undefined ? "" : unit[0])); activateRefresh(!refresh)}} 
-                                    onKeyDown={(e)=>{if(e.key === "Enter"){editHandle("style", e.target.name, e.target.value + (unit[0] === undefined ? "" : unit[0])); activateRefresh(!refresh)}}}
-                                    defaultValue={val} 
-                                    name={`${key}`}
-                                />
-                                {key !== "fontWeight" ? 
-                                    <div className="d-flex align-center"> 
-                                        <select 
-                                            onChange={async(e)=>{await editHandle("style", `${key}`, (val).toString() + e.target.value); activateRefresh(!refresh)}} 
-                                            onKeyDown={(e)=>{if(e.key === "Enter"){editHandle("style", `${key}`, (val).toString() + e.target.value); activateRefresh(!refresh)}}}
-                                            defaultValue={unit[0]}
-                                        >
-                                            <option value="cm">cm</option>
-                                            <option value="px">px</option>
-                                            <option value="%">%</option>
-                                            <option value="mm">mm</option>
-                                            <option value="in">in</option>
-                                            <option value="pc">pc</option>
-                                            <option value="pt">pt</option>
-                                            <option value="ch">ch</option>
-                                            <option value="em">em</option>
-                                            <option value="rem">rem</option>
-                                            <option value="vh">vh</option>
-                                            <option value="vw">vw</option>
-                                            <option value="vmin">vmin</option>
-                                            <option value="vmax">vmax</option>
-                                            <option value="">none</option>
-                                        </select>
-                                    </div>
-                                : null}
-                            </div>
-                        : 
-                            <select 
-                                style={{marginLeft: "auto", width: "60%"}}
-                                onBlur={async(e)=>{await editHandle("style", key, e.target.value); activateRefresh(!refresh)}} 
-                                defaultValue={unit[0]} 
-                                >
-                                    {key === "fontFamily" ? fontsLocal.map(font=>{
-                                        return <option key={Math.random()} style={{fontFamily: `${font}`, color: fontsArray.includes(font) ? "var(--cblack)" : "var(--cpink)"}} value={font}>{font}</option>
-                                    })
-                                    : textDecorationsArray.map(Deco=>{
-                                        return <option key={Math.random()} style={{textDecoration: `${Deco}`}} value={Deco}>{Deco}</option>
-                                    })}
-                            </select>
-                        } 
-                    </div>
-            }) }
-        </div>
-    </div>)
-}
-
 function Chips({chipsList, editHandle}){
     const [refresh, activateRefresh] = React.useState(false)
     
@@ -819,7 +741,6 @@ export function EditorTextForm({editor, submit, fonts}) {
 
     const pages = {
         "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle}/>, 
-        "Text": <TextSpan stylesProp={editorLocal.data.style} text={editorLocal.data.text} fonts={fonts} editHandle={editHandle}/>,
         "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle}/>
     }
     return (

@@ -2,14 +2,12 @@ import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import JSONTreeComponent from "./SideBar_Pages/JSONTreePage";
-import SideBarFont from "./SideBar_Pages/FontPage";
-import SideBarGeneral from "./SideBar_Pages/GeneralPage";
 import PagesButtons from "./SideBar_Pages/PagesButtons";
 
 
 import "../assets/css/sidebar.css";
 import "../assets/css/sidebarEdit.css";
-import SideBarAnimations from "./SideBar_Pages/AnimationPage";
+// import SideBarAnimations from "./SideBar_Pages/AnimationPage";
 
 export default function SideBar({mode, JSONTree, selected, createComponent,fixedComponents, selectedFonts}) {
     let editionModeSideBar = mode === "editor";
@@ -70,15 +68,12 @@ export default function SideBar({mode, JSONTree, selected, createComponent,fixed
             </div>
         </div>
         ,
-        "Fonts": <SideBarFont 
-            selectedFonts={selectedFonts} 
-        />,
-        "General": <SideBarGeneral
-                selectedFonts={selectedFonts} 
-                JSONView={JSONTree}
-                setSideBarPage={setSideBarPage}
-            />,
-        "Animations": <SideBarAnimations />
+        // "General": <SideBarGeneral
+        //         selectedFonts={selectedFonts} 
+        //         JSONView={JSONTree}
+        //         setSideBarPage={setSideBarPage}
+        //     />,
+        // "Animations": <SideBarAnimations />
     }
 
     return (<>

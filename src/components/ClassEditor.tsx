@@ -4,7 +4,7 @@ import React from "react";
 import { Classe } from "../RenderComponents/Editors";
 import { GlobalFunctions } from "../screens/AdminEditor";
 
-export default function ClassEditor({classe, setSelected}) {
+export default function ClassEditor({classe, setSelected}: {classe, setSelected:Function}) {
     const GlobalFunc = React.useContext(GlobalFunctions)
     const seeElementsSelect = (bool)=>{
         let elements = document.querySelectorAll(`[class~="${GlobalFunc.selectedClass.name}"]`)
@@ -27,7 +27,7 @@ export default function ClassEditor({classe, setSelected}) {
                     else classe.changeCss.delete(classe.selectedClass.index)
                 }}
             ><FontAwesomeIcon icon={faTrash} size="xl"/></button>
-            <button onClick={()=>{setSelected()}}><FontAwesomeIcon icon={faCircleXmark} size="xl"/></button>
+            <button onClick={()=>{setSelected(undefined)}}><FontAwesomeIcon icon={faCircleXmark} size="xl"/></button>
         </div>
     }
 

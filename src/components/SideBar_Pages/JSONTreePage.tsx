@@ -24,10 +24,10 @@ export default function JSONTreeComponent ({JSONTree, fixedComponents, selected,
     const DragEnter = (e)=>{
         if(e.target.id === undefined 
             || e.target.id === "" 
-            || document.body.attributes.dragging?.value === undefined 
+            || document.body.getAttribute("dragging")! === undefined 
             || e.target.attributes.fixed?.value === "true") 
             return
-        let [dragging, id] = document.body.attributes.dragging?.value.split(".")
+        let [dragging, id] = document.body.getAttribute("dragging")!.split(".")
         let level = e.target.id.split("-")
         let isLevel0 = level[0] === "0"
         let key = isLevel0 ? "0" : level.length
