@@ -1,4 +1,4 @@
-import { faCircleXmark, faMagnifyingGlass, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import filterArray from "../../logic/filterArray";
@@ -7,7 +7,7 @@ import "../../assets/css/classesPage.css"
 
 import { GlobalFunctions } from "../../screens/AdminEditor";
 
-export default function SideBarClasses ({list}) {
+export default function SideBarClasses ({list}: {list: any}) {
     const GlobalFunc = React.useContext(GlobalFunctions)
     const cssList = GlobalFunc !== null ? GlobalFunc : list 
     const [List, setList] = React.useState(cssList.cssNames)

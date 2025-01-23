@@ -1,6 +1,6 @@
-// import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import React from "react"
+import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from "react"
 // import 'react-quill/dist/quill.snow.css'
 // import ReactQuill from "react-quill";
 // import { ImageDropZone } from "./ImageInput";
@@ -28,49 +28,52 @@
 //       userOnly: true
 //     }
 // }
-export default function PopEditor ({PopEditorRef, confirm}){
-    // let Module = PopEditorRef.selected !== undefined ? PopEditorRef.selected.title.split(" (")[0] : undefined 
+export default function PopEditor ({PopEditorRef, confirm}: {PopEditorRef: any, confirm: Function}){
+    let Module = "Image"
+    // PopEditorRef.selected !== undefined ? PopEditorRef.selected.title.split(" (")[0] : undefined 
 
-    // const [editorState, setEditorState] = React.useState("")
+    const [editorState, setEditorState] = React.useState("")
 
-    // const Editor = {
-    //     "Text" : <ReactQuill
-    //         value={editorState} 
-    //         onChange={setEditorState}
-    //         theme="snow" 
-    //         modules={modules}
-    //     />,
-    //     "Image": <section>
-    //         <div className="image-render" style={{maxHeight: "20rem", minHeight: "10rem"}} dangerouslySetInnerHTML={{__html: '<img src="'+editorState+'"></img>'}}></div>
-    //     </section>
-    // }
-    // const toggleOpen = (e)=>{
-    //     let isVisible = !PopEditorRef.current.classList.contains("d-none")
-    //     PopEditorRef.current.classList.toggle("d-none")
-    //     if(isVisible) {
-    //         confirm(editorState, Module)
-    //     }
-    //     else setEditorState(() => {
-    //         console.log(PopEditorRef.selected.innerHTML)
-    //         if(PopEditorRef.selected !== undefined) {
-    //             Module = PopEditorRef.selected.title.split(" (")[0]
-    //             if(Module === "Text") return PopEditorRef.selected.innerHTML
-    //             else return PopEditorRef.selected.firstChild.src
-    //         }
-    //     })
-    // }
+    const Editor: {[key: string] : any} = {
+        // "Text" : <ReactQuill
+        //     value={editorState} 
+        //     onChange={setEditorState}
+        //     theme="snow" 
+        //     modules={modules}
+        // />,
+        "Image": <section>
+            <div className="image-render" style={{maxHeight: "20rem", minHeight: "10rem"}} dangerouslySetInnerHTML={{__html: '<img src="'+editorState+'"></img>'}}></div>
+        </section>
+    }
+    const toggleOpen = ()=>{
+        let isVisible = !PopEditorRef.current.classList.contains("d-none")
+        PopEditorRef.current.classList.toggle("d-none")
+        if(isVisible) {
+            confirm(editorState, Module)
+        }
+        else setEditorState(() => {
+            console.log(PopEditorRef.selected.innerHTML)
+            if(PopEditorRef.selected !== undefined) {
+                Module = PopEditorRef.selected.title.split(" (")[0]
+                if(Module === "Text") return PopEditorRef.selected.innerHTML
+                else return PopEditorRef.selected.firstChild.src
+            }
+        })
+    }
 
     return <div 
         className="d-none form-background" 
-        // onClick={(e)=>{if(e.target.classList.contains("form-background")) toggleOpen(e)}}
-        // ref={PopEditorRef}
+        onClick={(e)=>{
+            let target = e.target as HTMLDivElement
+            if(target && target.classList.contains("form-background")) toggleOpen()}}
+        ref={PopEditorRef}
     >
-        {/* <section className="form-pop-up">
+        <section className="form-pop-up">
             <nav className="form-top-bar">
                 <h1>{PopEditorRef?.selected?.title}</h1>
                 <FontAwesomeIcon icon={faXmarkCircle} size="xl" onClick={toggleOpen}/>
             </nav>
             {Editor[Module]}
-        </section> */}
+        </section>
     </div>
 }

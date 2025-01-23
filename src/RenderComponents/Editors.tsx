@@ -2,33 +2,33 @@ import React from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen, faCrop, faCropSimple, faBrush, faPenToSquare, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { GlobalFunctions } from "../screens/AdminEditor"
+import { moduleType } from "../vite-env"
 
 
-let inputText = ["Text", "Logo", "SearchBar", "Image", "Módulo", ""]
-let moduleTypes = ["Text", "Logo", "SearchBar", "SocialProfiles", "Image", "Form", "Módulo", ""]
-let fontsArray = ["Arial","cursive", "emoji", "Verdana", "Brush Script MT", "Courier New", "Tahoma", "Trebuchet MS", "Times New Roman", "Georgia", "Garamond", "monospace"]
+// let inputText = ["Text", "Logo", "SearchBar", "Image", "Módulo", ""]
+// let moduleTypes = ["Text", "Logo", "SearchBar", "SocialProfiles", "Image", "Form", "Módulo", ""]
+// let fontsArray = ["Arial","cursive", "emoji", "Verdana", "Brush Script MT", "Courier New", "Tahoma", "Trebuchet MS", "Times New Roman", "Georgia", "Garamond", "monospace"]
 
 
-const languageDictionary = 
-    {
-        "es": {
-            "minWidth":"ancho mínimo",
-            "width":"ancho",
-            "minHeight": "altura mínima",
-            "height": "altura",
-            "background":"fondo",
-            "color":"Color de Texto",
-            "padding":"espaciado interno",
-            "margin": "espaciado externo",
-            "border":"borde",
-            "borderStyle":"estilo del borde",
-            "borderRadius":"redondeado de borde",
-            "borderColor":"color de borde",
-            "fontWeight": "grosor",
-            "fontSize": "tamaño",
-            "fontFamily": "fuente",
-            "textDecoration": "decoracion"
-        }
+const languageDictionary: { [key: string]: { [key: string]: string } } = {
+    "es": {
+        "minWidth": "ancho mínimo",
+        "width": "ancho",
+        "minHeight": "altura mínima",
+        "height": "altura",
+        "background": "fondo",
+        "color": "Color de Texto",
+        "padding": "espaciado interno",
+        "margin": "espaciado externo",
+        "border": "borde",
+        "borderStyle": "estilo del borde",
+        "borderRadius": "redondeado de borde",
+        "borderColor": "color de borde",
+        "fontWeight": "grosor",
+        "fontSize": "tamaño",
+        "fontFamily": "fuente",
+        "textDecoration": "decoracion"
+    }
 }
 
 const cssKeyList = [
@@ -208,58 +208,61 @@ const cssKeyList = [
 //     </>)
 // }
 
-function ClassSpan({classes, editHandle}){
+function ClassSpan({ classes, editHandle }: { classes: string, editHandle: Function }) {
     const Context = React.useContext(GlobalFunctions)
-    let classList = Context.cssNames
+    let classList = Context ? Context.cssNames : []
     let classesArray = classes === "" ? [] : classes.split(" ")
 
     const changeSelected = {
-        addEntry : (e)=>{
+        addEntry: (e: React.FocusEvent | React.KeyboardEvent) => {
             e.preventDefault()
-            if(e.target.innerText === "") return
-            classesArray.push(e.target.innerText)
+            let target = e.target as HTMLDivElement
+            if (target.innerText === "") return
+            classesArray.push(target.innerText)
             let newClasses = classesArray.join(" ")
-            e.target.innerText = ""
+            target.innerText = ""
             editHandle("className", "className", newClasses)
         },
-        delete: (index)=>{
+        delete: (index: number) => {
             classesArray.splice(index, 1)
             let newClasses = classesArray.join(" ")
             editHandle("className", "className", newClasses)
         }
     }
-    const setAutoComplete = (e)=>{
-        if(e.target.innerText === "") return;
-        let value = e.target.innerText
+    const setAutoComplete = (e: React.KeyboardEvent) => {
+        let target = e.target as HTMLDivElement
+        if (!target || target.innerText === "") return;
+        let value = target.innerText
         let autocomplete = ""
-        for (let i=0; i < classList.length; i++) {
+        for (let i = 0; i < classList.length; i++) {
             let key = classList[i]
             key = key.slice(0, value.length)
-            if(key === value){ 
-                autocomplete = classList[i] === undefined ? "" : classList[i]; 
+            if (key === value) {
+                autocomplete = classList[i] === undefined ? "" : classList[i];
                 break
             }
         }
-        e.target.dataset.autocomplete = autocomplete
+        target.dataset.autocomplete = autocomplete
     }
 
-    const checkClassCreation = (name)=>{
-        if(classList.indexOf(name) !== -1) Context.selectClass(classList.indexOf(name))
+    const checkClassCreation = (name: string) => {
+        if (!Context) return
+        if (classList.indexOf(name) !== -1) Context.selectClass(classList.indexOf(name))
         else Context.changeCss.create(name)
     }
 
     return (<>
         <div>
-            {classesArray.length > 0 ? classesArray.map((classItem, i)=>{
+            {classesArray.length > 0 ? classesArray.map((classItem, i) => {
                 return (<section key={Math.random()} className="tag-contain">
-                    <div 
-                        className="tags"  
-                        onClick={()=>{checkClassCreation(classItem)}}
+                    <div
+                        className="tags"
+                        onClick={() => { checkClassCreation(classItem) }}
                     >
                         <div className="margin-right-5px">{classItem}</div>
-                        <FontAwesomeIcon icon={faPen}/>
+                        <FontAwesomeIcon icon={faPen} />
                     </div>
-                    <FontAwesomeIcon icon={faXmark} onClick={()=>{changeSelected.delete(i)}}/>
+                    <FontAwesomeIcon icon={faXmark} onClick={() => { changeSelected.delete(i) }} />
                 </section>)
             }) : null}
             <div
@@ -267,15 +270,17 @@ function ClassSpan({classes, editHandle}){
                 contentEditable suppressContentEditableWarning
                 data-autocomplete=""
                 data-placeholder="Name"
-                onKeyUp={(e)=>{
-                    if(e.key === "Tab" || e.key === "Enter") changeSelected.addEntry(e)
+                onKeyUp={(e) => {
+                    if (e.key === "Tab" || e.key === "Enter") changeSelected.addEntry(e)
                     setAutoComplete(e)
                 }}
-                onKeyDown={(e)=>{
-                    if(e.key === "Tab" || e.key === "Enter") {
+                onKeyDown={(e) => {
+                    if (e.key === "Tab" || e.key === "Enter") {
                         e.preventDefault()
-                        e.target.innerText = e.target.dataset.autocomplete === "" ? 
-                            e.target.innerText : e.target.dataset.autocomplete; 
+                        let target = e.target as HTMLDivElement
+                        if (!target) return
+                        target.innerText = target.dataset.autocomplete === "" ?
+                            target.innerText : target.dataset.autocomplete ? target.dataset.autocomplete : "";
                     }
                 }}
                 onBlur={changeSelected.addEntry}
@@ -284,11 +289,11 @@ function ClassSpan({classes, editHandle}){
     </>)
 }
 
-function Styles({stylesProp, editHandle}) {
+function Styles({ stylesProp, editHandle }: { stylesProp: { [key: string]: string }, editHandle: Function }) {
     const [stylePage, setPage] = React.useState("size")
     const [refresh, activateRefresh] = React.useState(false)
 
-    let styles = {
+    let styles: { [key: string]: { [key: string]: string } } = {
         size: {
             width: stylesProp.width,
             height: stylesProp.height,
@@ -314,54 +319,58 @@ function Styles({stylesProp, editHandle}) {
     let inputTypesColor = ["color", "background", "backgroundColor", "borderColor"]
     return (<div>
         <div className="d-flex">
-            <button 
-                className={stylePage === "size" ? "btn-active" : ""} 
-                onClick={()=>{setPage("size")}}>
-                    <FontAwesomeIcon icon={faCrop}/>
+            <button
+                className={stylePage === "size" ? "btn-active" : ""}
+                onClick={() => { setPage("size") }}>
+                <FontAwesomeIcon icon={faCrop} />
             </button>
-            <button 
-                className={stylePage === "color" ? "btn-active" : ""} 
-                onClick={()=>{setPage("color")}}>
-                    <FontAwesomeIcon icon={faBrush}/>
+            <button
+                className={stylePage === "color" ? "btn-active" : ""}
+                onClick={() => { setPage("color") }}>
+                <FontAwesomeIcon icon={faBrush} />
             </button>
-            <button 
-                className={stylePage === "position" ? "btn-active" : ""} 
-                onClick={()=>{setPage("position")}}>
-                    <FontAwesomeIcon icon={faCropSimple}/>
+            <button
+                className={stylePage === "position" ? "btn-active" : ""}
+                onClick={() => { setPage("position") }}>
+                <FontAwesomeIcon icon={faCropSimple} />
             </button>
-            <button 
-                className={stylePage === "border" ? "btn-active" : ""} 
-                onClick={()=>{setPage("border")}}>
-                    <FontAwesomeIcon icon={faPenToSquare}/>
+            <button
+                className={stylePage === "border" ? "btn-active" : ""}
+                onClick={() => { setPage("border") }}>
+                <FontAwesomeIcon icon={faPenToSquare} />
             </button>
         </div>
         <div>
             {Object.keys(styles[stylePage]).map(key => {
-                let val = styles[stylePage][key]
-                let unit  
-                if(!inputTypesColor.includes(key)){
-                    val = parseInt((styles[stylePage][key].match(/\d+/g) === null ? "0" : styles[stylePage][key].match(/\d+/g))[0]);
-                    unit = styles[stylePage][key].match(/[a-zA-Z%]+/g) === null ? ["px"] : styles[stylePage][key].match(/[a-zA-Z%]+/g);
+                let val: number | string = styles[stylePage][key]
+                let unit: string[] = []
+                if (!inputTypesColor.includes(key)) {
+                    let match = styles[stylePage][key].match(/[a-zA-Z%]+/g)
+                    let valMatch = styles[stylePage][key].match(/\d+/g)
+                    val = parseInt((valMatch === null ? "0" : valMatch)[0]);
+                    unit = match === null ? ["px"] : match
                 }
-                return <div 
-                    className="d-flex" 
+                return <div
+                    className="d-flex"
                     key={Math.random()}
-                    >
-                        <div style={{margin: "5px 0"}}>{languageDictionary['es'][key]}</div>
-                        {key !== "borderStyle" ? 
-                            <>
-                            <input 
-                                style={{width: "4rem",margin: "5px 0 5px auto"}}
-                                type={inputTypesColor.includes(key) ? "color" : "number"} 
-                                onBlur={(e)=>{editHandle("style", e.target.name, (e.target.value).toString() + (unit === undefined ? "" : unit)); activateRefresh(!refresh)}} 
-                                onKeyDown={(e)=>{if(e.key === "Enter"){editHandle("style", e.target.name, (e.target.value).toString() + (unit === undefined ? "" : unit)); activateRefresh(!refresh)}}}
-                                defaultValue={val} 
+                >
+                    <div style={{ margin: "5px 0" }}>{languageDictionary['es'][key]}</div>
+                    {key !== "borderStyle" ?
+                        <>
+                            <input
+                                style={{ width: "4rem", margin: "5px 0 5px auto" }}
+                                type={inputTypesColor.includes(key) ? "color" : "number"}
+                                onBlur={(e) => { editHandle("style", e.target.name, (e.target.value).toString() + (unit === undefined ? "" : unit)); activateRefresh(!refresh) }}
+                                onKeyDown={(e) => { 
+                                    let target =  e.target as HTMLInputElement
+                                    if (target && e.key === "Enter") { editHandle("style", target.name, (target.value).toString() + (unit === undefined ? "" : unit)); activateRefresh(!refresh) } }}
+                                defaultValue={val}
                                 name={`${key}`}
                             />
                             {!inputTypesColor.includes(key) ?
-                                <div className="d-flex" style={{alignItems: "center"}}> 
-                                    <select 
-                                        onChange={async(e)=>{await editHandle("style", `${key}`, (val).toString() + e.target.value); activateRefresh(!refresh)}} 
+                                <div className="d-flex" style={{ alignItems: "center" }}>
+                                    <select
+                                        onChange={async (e) => { await editHandle("style", `${key}`, (val).toString() + e.target.value); activateRefresh(!refresh) }}
                                         defaultValue={unit[0]}
                                     >
                                         <option value="cm">cm</option>
@@ -381,241 +390,266 @@ function Styles({stylesProp, editHandle}) {
                                         <option value="">none</option>
                                     </select>
                                 </div>
-                            : null}
-                            </>
-                            : 
-                            <select 
-                            style={{marginLeft: "auto"}}
-                            onBlur={async(e)=>{await editHandle("style", key, e.target.value); activateRefresh(!refresh)}} 
-                            defaultValue={unit[0]} 
-                            >
-                                <option value="solid">Sólido</option>
-                                <option value="double">Doble</option>
-                                <option value="dashed">Punteado</option>
-                                <option value="groove">Ranurado</option>
-                                <option value="none">Ninguno</option>
-                            </select>
-                        }
-                        
-                    </div>
-            }) }
+                                : null}
+                        </>
+                        :
+                        <select
+                            style={{ marginLeft: "auto" }}
+                            onBlur={async (e) => { await editHandle("style", key, e.target.value); activateRefresh(!refresh) }}
+                            defaultValue={unit[0]}
+                        >
+                            <option value="solid">Sólido</option>
+                            <option value="double">Doble</option>
+                            <option value="dashed">Punteado</option>
+                            <option value="groove">Ranurado</option>
+                            <option value="none">Ninguno</option>
+                        </select>
+                    }
+
+                </div>
+            })}
         </div>
     </div>)
 }
 
-function Chips({chipsList, editHandle}){
+function Chips({ chipsList, editHandle }: { chipsList: string[], editHandle: Function }) {
     const [refresh, activateRefresh] = React.useState(false)
-    
+
     let localList = chipsList
 
     return (<div>
         <div className="d-flex">
-            {localList.length > 0 ? localList.map((chip)=>{
-                return <div className="tags" key={Math.random()} onClick={()=>{editHandle("tags", chip); activateRefresh(!refresh)}}><div className="margin-right-5px">{chip}</div><FontAwesomeIcon icon={faXmark}/></div>
+            {localList.length > 0 ? localList.map((chip) => {
+                return <div className="tags" key={Math.random()} onClick={() => { editHandle("tags", chip); activateRefresh(!refresh) }}><div className="margin-right-5px">{chip}</div><FontAwesomeIcon icon={faXmark} /></div>
             }) : null}
         </div>
-        <input 
-            placeholder="Nueva tags" 
-            onBlur={(e)=>{if(e.target.value !== ""){editHandle("tags", undefined, e.target.value); e.target.value = ""; activateRefresh(!refresh)}}}
-            onKeyDown={(e)=>{if(e.target.value !== "" && e.key === "Enter"){editHandle("tags", undefined, e.target.value); e.target.value = ""; activateRefresh(!refresh)}}}
+        <input
+            placeholder="Nueva tags"
+            onBlur={(e) => { if (e.target.value !== "") { editHandle("tags", undefined, e.target.value); e.target.value = ""; activateRefresh(!refresh) } }}
+            onKeyDown={(e) => { 
+                let target = e.target as HTMLInputElement
+                if (target && target.value !== "" && e.key === "Enter") { editHandle("tags", undefined, target.value); target.value = ""; activateRefresh(!refresh) } }}
         />
     </div>)
 }
 
-export function Classe ({classe}){
+export function Classe({ classe }: { classe: any }) {
     const GlobalFunc = React.useContext(GlobalFunctions)
     const css = GlobalFunc !== null ? GlobalFunc : classe
     const [selected, setSelected] = React.useState(css.selectedClass)
     const [page, setPage] = React.useState("style")
 
-    React.useEffect(()=>{setSelected(css.selectedClass)}, [css.selectedClass.index])
-    React.useEffect(()=>{if(selected !== css.selectedClass) {css.changeCss.edit(selected, css.selectedClass.index)}}, [selected])
+    React.useEffect(() => { setSelected(css.selectedClass) }, [css.selectedClass.index])
+    React.useEffect(() => { if (selected !== css.selectedClass) { css.changeCss.edit(selected, css.selectedClass.index) } }, [selected])
 
-    const changeClassName = (value)=>{
+    const changeClassName = (value: string) => {
         let newValue = value.replace(/ +/g, "-")
         return newValue
     }
 
-    const editGeneral = (key, change)=>{
-        if(selected[key] === change) return
-        setSelected({...selected, [key]: change})
+    const editGeneral = (key: string, change: any) => {
+        if (selected[key] === change) return
+        setSelected({ ...selected, [key]: change })
     }
 
     const changeSelected = {
-        addEntry : (e)=> {
+        addEntry: (e: React.FocusEvent | React.KeyboardEvent) => {
             e.preventDefault()
-            let [keyInput, valueInput] = e.target.parentElement.children
-            if(keyInput.innerText === "" || valueInput.value === "") return
-            editGeneral(page, [...selected[page], {"key": keyInput.innerText,"value": valueInput.value}])
+            let target = e.target as HTMLDivElement
+            if (!target) return
+            let keyInput = target.parentElement!.children[0] as HTMLDivElement
+            let valueInput = target.parentElement!.children[1] as HTMLInputElement
+            if (keyInput.innerText === "" || valueInput.value === "") return
+            editGeneral(page, [...selected[page], { "key": keyInput.innerText, "value": valueInput.value }])
         },
-        editEntry: (type, newValue, index) =>{
-            if(newValue === "" && type === "key")
-                editGeneral(page, [...selected[page].filter((entry, i)=>{if(i !== index)return entry})])
-            else 
-                editGeneral(page, Object.values({...selected[page], 
-                    [index]: {...selected[page][index], [type]: newValue}
+        editEntry: (type: string, newValue: any, index: number) => {
+            if (newValue === "" && type === "key")
+                editGeneral(page, [...selected[page].filter((entry: any, i: number) => { if (i !== index) return entry })])
+            else
+                editGeneral(page, Object.values({
+                    ...selected[page],
+                    [index]: { ...selected[page][index], [type]: newValue }
                 }))
         }
     }
 
-    const setAutoComplete = (e)=>{
-        if(e.target.innerText === "") return;
-        let value = e.target.innerText
+    const setAutoComplete = (e: React.KeyboardEvent) => {
+        let target = e.target as HTMLDivElement
+        if (!target || target.innerText === "") return;
+        let value = target.innerText
         let autocomplete = ""
-        for (let i=0; i < cssKeyList.length; i++) {
+        for (let i = 0; i < cssKeyList.length; i++) {
             let key = cssKeyList[i]
             key = key.slice(0, value.length)
-            if(key === value){ 
-                autocomplete = cssKeyList[i] === undefined ? "" : cssKeyList[i]; 
+            if (key === value) {
+                autocomplete = cssKeyList[i] === undefined ? "" : cssKeyList[i];
                 break
             }
         }
-        e.target.dataset.autocomplete = autocomplete
+        target.dataset.autocomplete = autocomplete
     }
-     
-    const switchDisplay = (e) =>{
+
+    const switchDisplay = (e: React.MouseEvent) => {
+        let target = e.target as HTMLDivElement
+        if (!target) return
         const states = ["Mobile", "Desktop", "All"]
-        let index = states.indexOf(e.target.innerText)-1 < 0 ? 2 : states.indexOf(e.target.innerText)-1
+        let index = states.indexOf(target.innerText) - 1 < 0 ? 2 : states.indexOf(target.innerText) - 1
         editGeneral("display", states[index])
     }
     ///components
 
-    function EditorTopBar () {
+    function EditorTopBar() {
         const pages = ["style", "hover"]
         return <section>
-            <div className="d-flex align-center" style={{justifyContent: "space-between"}}>
-                <input 
-                    className="margin-0" 
-                    onKeyUp={(e)=>{if(e.key === "Enter") editGeneral("name", changeClassName(e.target.value))}}
-                    onBlur={(e)=>{editGeneral("name", changeClassName(e.target.value))}}
+            <div className="d-flex align-center" style={{ justifyContent: "space-between" }}>
+                <input
+                    className="margin-0"
+                    onKeyUp={(e) => { 
+                        let target = e.target as HTMLInputElement
+                        if (target && e.key === "Enter") editGeneral("name", changeClassName(target.value)) }}
+                    onBlur={(e) => { editGeneral("name", changeClassName(e.target.value)) }}
                     defaultValue={selected?.name}
                 />
                 <button className="switch-display" onClick={switchDisplay}>{selected.display}</button>
             </div>
             <nav>
-                {pages.map(item=>{
-                    return <button key={Math.random()} onClick={()=>{setPage(item)}} className={page === item ? "selected-page upper-first" : "upper-first"}>{item}</button>
+                {pages.map(item => {
+                    return <button key={Math.random()} onClick={() => { setPage(item) }} className={page === item ? "selected-page upper-first" : "upper-first"}>{item}</button>
                 })}
             </nav>
         </section>
     }
 
-    function StyleList (){
-        return selected[page].map((entry, i)=>{
+    function StyleList() {
+        return selected[page].map((entry: any, i: number) => {
             return (<section className="style-chip" key={Math.random()}>
-                <div 
+                <div
                     contentEditable suppressContentEditableWarning
                     data-autocomplete=""
                     data-placeholder="key"
-                    onKeyUp={(e)=>{
-                        if(e.key === "Enter") changeSelected.editEntry("key", e.target.innerText, i)
+                    onKeyUp={(e) => {
+                        let target = e.target as HTMLDivElement
+                        if (!target) return
+                        if (e.key === "Enter") changeSelected.editEntry("key", target.innerText, i)
                         setAutoComplete(e)
                     }}
-                    onKeyDown={(e)=>{
-                        if(e.key === "Enter") e.preventDefault()
-                        if(e.key === "Tab") {
-                        e.target.innerText = e.target.dataset.autocomplete === "" ? 
-                            e.target.innerText : e.target.dataset.autocomplete; 
-                    }}}
-                    style={!cssKeyList.includes(entry.key) ? {textDecoration: "line-through"} : {}}
-                    onBlur={(e)=>{changeSelected.editEntry("key", e.target.innerText, i)}}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") e.preventDefault()
+                        if (e.key === "Tab") {
+                            let target = e.target as HTMLDivElement
+                            if (!target) return
+                            target.innerText = target.dataset.autocomplete === "" ?
+                                target.innerText : target.dataset.autocomplete ? target.dataset.autocomplete : "";
+                        }
+                    }}
+                    style={!cssKeyList.includes(entry.key) ? { textDecoration: "line-through" } : {}}
+                    onBlur={(e) => { changeSelected.editEntry("key", e.target.innerText, i) }}
                 >{entry.key}</div>
-                <input 
-                    defaultValue={entry.value} 
-                    onBlur={(e)=>{changeSelected.editEntry("value", e.target.value, i)}}
-                    onKeyDown={(e)=>{if(e.key === "Enter") changeSelected.editEntry("value", e.target.value, i)}}
+                <input
+                    defaultValue={entry.value}
+                    onBlur={(e) => { changeSelected.editEntry("value", e.target.value, i) }}
+                    onKeyDown={(e) => {
+                        let target = e.target as HTMLInputElement
+                        if (target && e.key === "Enter") changeSelected.editEntry("value", target.value, i)
+                    }}
                 />
             </section>)
         })
     }
 
-    function AddEntryZone (){
+    function AddEntryZone() {
         return <section className="style-chip">
             <div
                 contentEditable suppressContentEditableWarning
                 data-autocomplete=""
                 data-placeholder="key"
-                onKeyUp={(e)=>{
-                    if(e.key === "Enter") changeSelected.addEntry(e)
+                onKeyUp={(e) => {
+                    if (e.key === "Enter") changeSelected.addEntry(e)
                     setAutoComplete(e)
                 }}
-                onKeyDown={(e)=>{
-                    if(e.key === "Enter") e.preventDefault()
-                    if(e.key === "Tab") {
-                    e.target.innerText = e.target.dataset.autocomplete === "" ? 
-                        e.target.innerText : e.target.dataset.autocomplete; 
-                }}}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") e.preventDefault()
+                    if (e.key === "Tab") {
+                        let target = e.target as HTMLDivElement
+                        if (!target) return
+                        target.innerText = target.dataset.autocomplete === "" ?
+                            target.innerText : target.dataset.autocomplete ? target.dataset.autocomplete : "";
+                    }
+                }}
                 onBlur={changeSelected.addEntry}
             />
             <input
-                placeholder="value" 
-                onKeyDown={(e)=>{if(e.key === "Enter") changeSelected.addEntry(e)}}
+                placeholder="value"
+                onKeyDown={(e) => { if (e.key === "Enter") changeSelected.addEntry(e) }}
                 onBlur={changeSelected.addEntry}
             />
         </section>
     }
 
     return <div className="editor-form">
-        <EditorTopBar/>
+        <EditorTopBar />
         <section className="page">
-            {selected[page] !== undefined ? <StyleList/> : null}
-            <AddEntryZone/>
+            {selected[page] !== undefined ? <StyleList /> : null}
+            <AddEntryZone />
         </section>
         {/* <button className="confirm-btn" style={{marginTop: "auto"}} onClick={()=>{submit(selected)}}><FontAwesomeIcon icon={faCheck} size="xl"/> Confirmar</button> */}
     </div>
 }
 
-export function EditorForm({editor, submit}) {
+export function EditorForm({ editor, submit }: { editor: moduleType, submit: Function }) {
     const [refresh, activateRefresh] = React.useState(false)
     const [editorLocal, setEditorLocal] = React.useState(
-        {data:{
-            className: editor.data.className,
-            style: Object.assign({
-                width: "",
-                height: "",
-                minWidth: "",
-                minHeight: "",
-                background: "",
-                color: "",
-                padding: "",
-                margin: "",
-                border: "",
-                borderStyle: "none",
-                borderColor: "",
-                borderRadius: "",
-            }, editor.data.style),
-            text: editor.data.text,
-        },
-        key: editor.key,
-        type: editor.type}
-        )
+        {
+            data: {
+                className: editor.data.className,
+                style: Object.assign({
+                    width: "",
+                    height: "",
+                    minWidth: "",
+                    minHeight: "",
+                    background: "",
+                    color: "",
+                    padding: "",
+                    margin: "",
+                    border: "",
+                    borderStyle: "none",
+                    borderColor: "",
+                    borderRadius: "",
+                }, editor.data.style),
+                text: editor.data.text,
+            },
+            key: editor.key,
+            type: editor.type
+        }
+    )
     const [editorPage, setEditorPage] = React.useState("Styles")
-    const pages = {
-        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle}/>, 
-        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle}/>
+    const pages: { [key: string]: any } = {
+        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle} />,
+        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle} />
     }
-    
-    function editHandle(target, name, val) {
+
+    function editHandle(target: string, name: string, val: string) {
         console.log(target, name, val)
-        setEditorLocal((prev)=>{
-            switch(target){
+        setEditorLocal((prev) => {
+            switch (target) {
                 case "style":
                     prev.data[target][name] = val
-                break
-                default:
+                    break
+                case "className":
+                case "text":
                     prev.data[target] = val
-                break
+                    break
             }
             return prev
         })
-        if(target === "className") {activateRefresh(!refresh)}
+        if (target === "className") { activateRefresh(!refresh) }
         submit(target, name, val)
     }
 
     return <div className="editor-form">
         <nav>
-            {Object.keys(pages).map(page=>{
-                return <button key={Math.random()} onClick={()=>{setEditorPage(page)}} className={editorPage === page ? "selected-page" : ""}>{page}</button>
+            {Object.keys(pages).map(page => {
+                return <button key={Math.random()} onClick={() => { setEditorPage(page) }} className={editorPage === page ? "selected-page" : ""}>{page}</button>
             })}
         </nav>
         <div className="page">
@@ -624,198 +658,152 @@ export function EditorForm({editor, submit}) {
     </div>
 }
 
-export function EditorChipsForm({editor,submit}) {
+export function EditorChipsForm({ editor, submit }: { editor: moduleType, submit: Function }) {
     const [refresh, activateRefresh] = React.useState(false)
     const [editorLocal, setEditorLocal] = React.useState(
-        {data:{
-            className: editor.data.className,
-            style: Object.assign({
-                width: "",
-                height: "",
-                minWidth: "",
-                minHeight: "",
-                background: "",
-                color: "",
-                padding: "",
-                margin: "",
-                border: "",
-                borderStyle: "none",
-                borderColor: "",
-                borderRadius: "",
-            }, editor.data.style),
-            text: editor.data.text,
-            tags: editor.data.tags,
-        },
-        key: editor.key,
-        type: editor.type}
-    )
-    const [editorPage, setEditorPage] = React.useState("Styles")
-
-    function editHandle(target, name, val) {
-        console.log(target, name, val)
-        setEditorLocal((prev)=>{
-            switch(target){
-                case "style":
-                    prev.data[target][name] = val
-                break
-                case "tags":
-                    if(name === undefined) {prev.data[target][prev.data[target].length] = val}
-                    else{ prev.data[target].splice(prev.data[target].indexOf(name), 1)}
-                break
-                default:
-                    prev.data[target] = val
-                break
-            }
-            return prev
-        })
-        if(target === "className") {activateRefresh(!refresh)}
-        submit(target, name, val)
-    }
-
-    const pages = {
-        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle}/>, 
-        "Chips": <Chips chipsList={editorLocal.data.tags} editHandle={editHandle}/>,
-        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle}/>
-    }
-    return (
-    <div className="editor-form">
-        <nav>
-            {Object.keys(pages).map(page=>{
-                return <button key={Math.random()} onClick={()=>{setEditorPage(page)}} className={editorPage === page ? "selected-page" : ""}>{page}</button>
-            })}
-        </nav>
-        <div className="page">
-            {pages[editorPage]}
-        </div>
-    </div>)
-    
-}
-
-export function EditorTextForm({editor, submit, fonts}) {
-    const [refresh, activateRefresh] = React.useState(false)
-    const [editorLocal, setEditorLocal] = React.useState(
-        {data:{
-            className: editor.data.className,
-            style: Object.assign({
-                width: "",
-                height: "",
-                minWidth: "",
-                minHeight: "",
-                background: "",
-                color: "",
-                padding: "",
-                margin: "",
-                border: "",
-                borderStyle: "none",
-                borderColor: "",
-                borderRadius: "",
-                fontFamily: "",
-                fontWeight: "",
-                fontSize: "",
-                textDecoration: "",
-            }, editor.data.style),
-            text: editor.data.text,
-        },
-        key: editor.key,
-        type: editor.type
+        {
+            data: {
+                className: editor.data.className,
+                style: Object.assign({
+                    width: "",
+                    height: "",
+                    minWidth: "",
+                    minHeight: "",
+                    background: "",
+                    color: "",
+                    padding: "",
+                    margin: "",
+                    border: "",
+                    borderStyle: "none",
+                    borderColor: "",
+                    borderRadius: "",
+                }, editor.data.style),
+                text: editor.data.text,
+                tags: editor.data.tags ? editor.data.tags : [],
+            },
+            key: editor.key,
+            type: editor.type
         }
     )
     const [editorPage, setEditorPage] = React.useState("Styles")
 
-    function editHandle(target, name, val) {
+    function editHandle(target: string, name: string, val: string) {
         console.log(target, name, val)
-        setEditorLocal((prev)=>{
-            switch(target){
+        setEditorLocal((prev) => {
+            switch (target) {
                 case "style":
                     prev.data[target][name] = val
-                break
-                default:
+                    break
+                case "tags":
+                    if (name === undefined) { prev.data[target][prev.data[target].length] = val }
+                    else { prev.data[target].splice(prev.data[target].indexOf(name), 1) }
+                    break
+                case "className":
+                case "text":
                     prev.data[target] = val
-                break
+                    break
             }
             return prev
         })
-        if(target === "className") {activateRefresh(!refresh)}
+        if (target === "className") { activateRefresh(!refresh) }
         submit(target, name, val)
     }
 
-    const pages = {
-        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle}/>, 
-        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle}/>
+    const pages: { [key: string]: any } = {
+        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle} />,
+        "Chips": <Chips chipsList={editorLocal.data.tags} editHandle={editHandle} />,
+        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle} />
     }
     return (
-    <div className="editor-form">
-        <nav>
-            {Object.keys(pages).map(page=>{
-                return <button key={Math.random()} onClick={()=>{setEditorPage(page)}} className={editorPage === page ? "selected-page" : ""}>{page}</button>
-            })}
-        </nav>
-        <div className="page">
-            {pages[editorPage]}
-        </div>
-    </div>)
-    
+        <div className="editor-form">
+            <nav>
+                {Object.keys(pages).map(page => {
+                    return <button key={Math.random()} onClick={() => { setEditorPage(page) }} className={editorPage === page ? "selected-page" : ""}>{page}</button>
+                })}
+            </nav>
+            <div className="page">
+                {pages[editorPage]}
+            </div>
+        </div>)
+
+}
+
+export function EditorTextForm({ editor, submit }: { editor: moduleType, submit: Function }) {
+    const [refresh, activateRefresh] = React.useState(false)
+    const [editorLocal, setEditorLocal] = React.useState(
+        {
+            data: {
+                className: editor.data.className,
+                style: Object.assign({
+                    width: "",
+                    height: "",
+                    minWidth: "",
+                    minHeight: "",
+                    background: "",
+                    color: "",
+                    padding: "",
+                    margin: "",
+                    border: "",
+                    borderStyle: "none",
+                    borderColor: "",
+                    borderRadius: "",
+                    fontFamily: "",
+                    fontWeight: "",
+                    fontSize: "",
+                    textDecoration: "",
+                }, editor.data.style),
+                text: editor.data.text,
+            },
+            key: editor.key,
+            type: editor.type
+        }
+    )
+    const [editorPage, setEditorPage] = React.useState("Styles")
+
+    function editHandle(target: string, name: string, val: string) {
+        console.log(target, name, val)
+        setEditorLocal((prev) => {
+            switch (target) {
+                case "style":
+                    prev.data[target][name] = val
+                    break
+                case "className":
+                case "text":
+                    prev.data[target] = val
+                    break
+            }
+            return prev
+        })
+        if (target === "className") { activateRefresh(!refresh) }
+        submit(target, name, val)
+    }
+
+    const pages : { [key: string]: any }= {
+        "Classes": <ClassSpan classes={editorLocal.data.className} editHandle={editHandle} />,
+        "Styles": <Styles stylesProp={editorLocal.data.style} editHandle={editHandle} />
+    }
+    return (
+        <div className="editor-form">
+            <nav>
+                {Object.keys(pages).map(page => {
+                    return <button key={Math.random()} onClick={() => { setEditorPage(page) }} className={editorPage === page ? "selected-page" : ""}>{page}</button>
+                })}
+            </nav>
+            <div className="page">
+                {pages[editorPage]}
+            </div>
+        </div>)
+
 }
 
 /////////
 
-export class Text extends React.Component {
-    render(){
-        return <EditorTextForm editor={this.props.editor} fonts={this.props.fonts} submit={this.props.submit}/>
-    }
+export function Text (props: {editor: moduleType, submit: Function}) {
+        return <EditorTextForm editor={props.editor} submit={props.submit} />
 }
-export class Logo extends React.Component {
-    render(){
-        return <EditorTextForm editor={this.props.editor} fonts={this.props.fonts} submit={this.props.submit}/>
-    }
+export function Image (props: {editor: moduleType, submit: Function}) {
+        return <EditorForm editor={props.editor} submit={props.submit} />
 }
-export class SocialProfiles extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Form extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Image extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class SearchBar extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Navigation extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Footer extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Container extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Columns extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class Header extends React.Component {
-    render(){
-        return <EditorForm editor={this.props.editor} submit={this.props.submit}/>
-    }
-}
-export class ProductsGrid extends React.Component {
-    render(){
-        return <EditorChipsForm editor={this.props.editor} submit={this.props.submit}/>
-    }
+export function Container (props: {editor: moduleType, submit: Function}) {
+        return <EditorForm editor={props.editor} submit={props.submit} />
 }

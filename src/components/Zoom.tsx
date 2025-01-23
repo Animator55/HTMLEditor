@@ -1,8 +1,7 @@
 import { faCropSimple, faExpand, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
 
-export default function Zoom ({resolution, AppCont, zoomAction}) {
+export default function Zoom ({resolution, AppCont, zoomAction}:{resolution:{x:string, y:string}, AppCont:any, zoomAction:{dec: Function, inc: Function}}) {
     return <div className="resolution">
         <section className="resolution-zone">
             <input 
@@ -26,8 +25,12 @@ export default function Zoom ({resolution, AppCont, zoomAction}) {
             />
         </section>
         <button className="zoom" title="Current resolution" onClick={(e)=>{
-            e.target.previousSibling.firstChild.value = window.innerWidth
-            e.target.previousSibling.lastChild.value = window.innerHeight
+            let target = e.target as HTMLButtonElement
+            if(!target)return
+            let first = target.previousSibling!.firstChild as HTMLInputElement
+            let last = target.previousSibling!.lastChild as HTMLInputElement
+            first.value = `${window.innerWidth}`
+            last.value = `${window.innerHeight}`
             
             AppCont.current.lastChild.style.width = window.innerWidth + "px"
             AppCont.current.lastChild.style.height = window.innerHeight + "px"

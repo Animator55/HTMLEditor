@@ -7,24 +7,33 @@ import PagesButtons from "./SideBar_Pages/PagesButtons";
 
 import "../assets/css/sidebar.css";
 import "../assets/css/sidebarEdit.css";
+import { moduleType } from "../vite-env";
 // import SideBarAnimations from "./SideBar_Pages/AnimationPage";
 
-export default function SideBar({mode, JSONTree, selected, createComponent,fixedComponents, selectedFonts}) {
+type Props = {
+    mode: string
+    JSONTree: {content:moduleType[]} 
+    selected:string 
+    createComponent: Function
+}
+
+export default function SideBar({mode, JSONTree, selected, createComponent}: Props) {
     let editionModeSideBar = mode === "editor";
     const [sideBarWidth, setSideBarWidth] = React.useState(50)
     const [sideBarPage, setPage] = React.useState("Components")
-    const SideCont = React.useRef()
-    const resizeSideBar = (e) =>{
+    const SideCont = React.useRef<HTMLDivElement | null>(null)
+    const resizeSideBar = (e: React.MouseEvent) =>{
         e = e || window.event;
         e.preventDefault();
-        let el = e.target.parentElement
+        let target = e.target as HTMLDivElement
+        let el = target.parentElement as HTMLDivElement
         let prevSize = sideBarWidth
         
-        function dragMove(dragMov){
+        function dragMove(dragMov: MouseEvent){
             let newX = prevSize - e.pageX + dragMov.pageX
             el.style.minWidth = newX > 366 ? "366px" : newX < 233 ? "233px" : newX + "px"
             let newXDrag = prevSize - e.pageX + dragMov.pageX
-            e.target.style.left = newXDrag > 366 ? "366px" : newXDrag < 233 ? "233px" : newXDrag + "px"
+            target.style.left = newXDrag > 366 ? "366px" : newXDrag < 233 ? "233px" : newXDrag + "px"
         }
 
         function dragEnd(){
@@ -41,18 +50,19 @@ export default function SideBar({mode, JSONTree, selected, createComponent,fixed
         document.addEventListener('mouseup', dragEnd);
     }
 
-    const setSideBarPage = (page)=>{
+    const setSideBarPage = (page: string)=>{
         setPage(page)
-        setSideBarWidth(!SideCont.current.classList.contains("expanded") ? 233 : sideBarWidth)
-        SideCont.current.classList.add("expanded")
+        if(!SideCont.current) return 
+        setSideBarWidth(!SideCont.current.classList!.contains("expanded") ? 233 : sideBarWidth)
+        SideCont.current.classList!.add("expanded")
     }
 
-    const page = {
+    const page: {[key: string]: any} = {
         "Components": <div className="component-editor">
             <div>
                 <button 
                     className="btn-2 align-center"
-                    onClick={createComponent}
+                    onClick={()=>{createComponent()}}
                 >
                     <FontAwesomeIcon icon={faPlus} size="xl" className="margin-right-5px"/>
                     <p>Anadir Componente</p>
@@ -61,7 +71,6 @@ export default function SideBar({mode, JSONTree, selected, createComponent,fixed
             <div className="json-tree">
                 <JSONTreeComponent 
                     JSONTree={JSONTree} 
-                    fixedComponents={editionModeSideBar ? fixedComponents : []}
                     selected={selected} 
                     generatePlaces={editionModeSideBar}
                 />

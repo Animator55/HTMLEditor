@@ -1,4 +1,4 @@
-export default async function copyTextToClipboard(text) {
+export default async function copyTextToClipboard(text:string) {
     if ('clipboard' in navigator) {
       return await navigator.clipboard.writeText(text);
     } else {

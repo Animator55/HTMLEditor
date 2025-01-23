@@ -23,7 +23,6 @@ setDragging("undefined");
 
 let requestCounter = 0
 
-let fixedComponents = ["Navigation", "Footer", "ProductsGrid"]
 //in ComponentsTree included Nav, footer for duplication (UNIQUE MECHANIC POSIBILITY)
 let ComponentsTree = ["Container", "Columns", "Header", "Text", "Logo", "Image", "Form", "SearchBar", "SocialProfiles", "ProductsGrid", "Navigation", "Footer"]
 let customFontList = {
@@ -70,20 +69,9 @@ export const GlobalFunctions = React.createContext<{
     selectClass: Function
     cssNames: any
     selectedClass: any
-    changeCss: Function
-    mainFont: {font: string, setMainFont: Function}
-}>({
-    moveComponent: (e: string) => { console.log(e) },
-    JSONLocationSearch: (e: string) => { console.log(e) },//
-    changeJSON: {},//
-    activatePopEditor: (e: string) => { console.log(e) },
-    selectComponent: (e: React.MouseEvent, provinence: boolean) => { console.log(e, provinence) },
-    selectClass: (e: number) => { console.log(e) },
-    cssNames: {},
-    selectedClass: undefined,//
-    changeCss: (e: string) => { console.log(e) },//
-    mainFont: { "font": "", setMainFont: (e: string) => { console.log(e) } }
-});
+    changeCss: any
+    mainFont: { font: string|undefined, setMainFont: Function }
+} | null>(null);
 
 let selected: any | undefined = undefined
 
@@ -103,13 +91,13 @@ export default function AdminEditor() {
         let firstChild = AppCont.current.firstChild as HTMLDivElement
         firstChild.classList.add("d-none")
         //querySelector can be replaced if "event.target" was in parameters, but not in json-tree
-        let rendered = document.querySelector(`.edit-screen [select="true"]`)
-        let sideRender = document.querySelector(`.side-bar [select="true"]`)
-        if (rendered !== null) rendered.setAttribute("select", "false")
-        if (sideRender !== null) sideRender.setAttribute("select", "false")
+        let rendered = document.querySelector(`.edit-screen [data-select="true"]`) as HTMLDivElement
+        let sideRender = document.querySelector(`.side-bar [data-select="true"]`) as HTMLDivElement
+        if (rendered) rendered.dataset.select = "false"
+        if (sideRender) sideRender.dataset.select = "false"
     }
 
-    const addSelect = (key: string, e) => {
+    const addSelect = (key: string, e: React.MouseEvent) => {
         const calcuteCoords = () => {
             if (e.pageY === 0) return
             let resultX = e.pageX - e.nativeEvent.offsetX * zoom - 1
@@ -119,15 +107,21 @@ export default function AdminEditor() {
         //querySelector can be replaced if "event.target" was in parameters, but not in json-tree
         EditorRef["selected"] = e.target
         EditorRef["selectedCoords"] = calcuteCoords()
-        EditorRef.current.firstChild.click()
-        AppCont.current.firstChild.click()
-        e.target.setAttribute("select", "true")
-        document.querySelector(`.side-bar [id="${key}"]`)?.setAttribute("select", "true")
+        if (!EditorRef.current || !AppCont.current) return
+        let button1 = EditorRef.current.firstChild as HTMLDivElement
+        let button2 = AppCont.current.firstChild as HTMLDivElement
+        button1.click()
+        button2.click()
+        let target = e.target as HTMLDivElement
+        if (target) target.dataset.select = "true"
+        let div = document.querySelector<HTMLDivElement>(`.side-bar [id="${key}"]`)
+        if(div) div.dataset.select = "true"
     }
 
-    const setSelected = (key: string | undefined, e?) => {
+    const setSelected = (key: string | undefined, e?: React.MouseEvent) => {
         Container["page"] = "Editor"
-        if (selected === undefined) {
+        if (!EditorRef.current) return
+        if (selected === undefined && key !== undefined && e) {
             EditorRef.current.classList.remove("d-none")
             addSelect(key, e)
         }
@@ -144,8 +138,10 @@ export default function AdminEditor() {
         else {
             removeSelects()
             EditorRef.current.classList.remove("d-none")
+            if (!e) return
             addSelect(key, e)
         }
+        if (!Container.current) return
         Container.current.click()
         selected = key
         Container["display"] = true
@@ -170,7 +166,7 @@ export default function AdminEditor() {
     else requestCounter = 0
 
     function handleSetSelected(e: React.MouseEvent, provinence: boolean) {
-        console.log(provinence)
+        console.log(e,provinence)
         //provinence: if(true) modules; else sidebar > jsontree || editor;
         let target = e.target as HTMLDivElement
         if (!target || target.id === undefined) return
@@ -236,7 +232,7 @@ export default function AdminEditor() {
         setDragging("undefined");
         let source = e.dataTransfer.getData("Text");
         let div = e.target as HTMLDivElement
-        if(!div) return
+        if (!div) return
         let target = div.id.slice(0, -1)
         console.log("src:", source, "trg:", target)
         if (source === "" || source === target) return
@@ -257,8 +253,20 @@ export default function AdminEditor() {
     }
 
     const zoomAction = {
-        inc: () => { if (AppCont.current && zoom < 1.9) { zoom += 0.1; AppCont.current.lastChild!.style.transform = `scale(${zoom})` } },
-        dec: () => { if (AppCont.current && zoom > 0.3) { zoom -= 0.1; AppCont.current.lastChild!.style.transform = `scale(${zoom})` } }
+        inc: () => {
+            if (AppCont.current && zoom < 1.9) {
+                zoom += 0.1;
+                let lastChild = AppCont.current.lastChild as HTMLDivElement
+                if (lastChild) lastChild.style.transform = `scale(${zoom})`
+            }
+        },
+        dec: () => {
+            if (AppCont.current && zoom > 0.3) {
+                zoom -= 0.1;
+                let lastChild = AppCont.current.lastChild as HTMLDivElement
+                if (lastChild) lastChild.style.transform = `scale(${zoom})`
+            }
+        }
     }
 
     function addDragEnterStyle(array: HTMLCollection) {
@@ -298,7 +306,7 @@ export default function AdminEditor() {
     //     setMainFont(val)
     // }
 
-    const activatePopEditor = (e) => {
+    const activatePopEditor = (e: React.MouseEvent) => {
         PopEditorRef["selected"] = e.target
         PopEditorRef?.current?.click()
     }
@@ -313,7 +321,9 @@ export default function AdminEditor() {
         //change json
         location[key[key.length - 1]].data[keys[entry]] = resultHTML
         if (AppCont.current) AppCont.current.addEventListener("mouseenter", (e) => { activateDragPage(e, AppCont, zoomAction) }, { once: true })
-        if (EditorRef.current && EditorRef.current.firstChild) EditorRef.current.firstChild.click()
+        if (!EditorRef.current) return
+        let firstChild = EditorRef.current.firstChild as HTMLDivElement
+        if(firstChild) firstChild.click()
     }
 
     const Resize = (id: string, changes: { width: number, height: number }) => {
@@ -378,7 +388,7 @@ export default function AdminEditor() {
             cssNames: cssNames,
             selectedClass: selectedClass ? { ...customClassList[selectedClass], index: selectedClass } : undefined,//
             changeCss: editClassList,//
-            mainFont: { "font": mainFont, setMainFont: () => { } }
+            mainFont: { font: mainFont, setMainFont: () => { } }
         }}>
             <NavBar JSONObj={JSONView} />
             <div className="d-flex">
@@ -386,9 +396,10 @@ export default function AdminEditor() {
                     mode={"editor"}
                     JSONTree={JSONView}
                     selected={selected}
-                    createComponent={() => { Container["page"] = "Componentes"; Container.current.click() }}
-                    fixedComponents={fixedComponents}
-                    selectedFonts={customFontList}
+                    createComponent={() => { 
+                        if(!Container.current) return
+                        Container["page"] = "Componentes"; Container.current.click() 
+                    }}
                 />
                 <div className="app-cont" ref={AppCont}>
                     <ReSize EditorRef={EditorRef} AppCont={AppCont} Resize={Resize} />
@@ -406,7 +417,10 @@ export default function AdminEditor() {
                     >
                         {css}
                         <div id="0"
-                            onDragStart={(e) => { setDragging(e.target.getAttribute("type") + "." + e.target.id) }}
+                            onDragStart={(e) => { 
+                                let target = e.target as HTMLDivElement
+                                if(target)setDragging(target.dataset.type + "." + target.id) 
+                            }}
                             onDragEnter={DragEnter}
                             onDragOver={(e) => { e.preventDefault() }}
                             onDrop={DragEndDrop}
@@ -416,7 +430,7 @@ export default function AdminEditor() {
                                 <ComponentsRender
                                     generatePlaces={AdminEditor}
                                     components={JSONView.content}
-                                    fixed={AdminEditor ? fixedComponents : "false"}
+                                    data={{className: "",style: {}}}
                                 />}
                         </div>
                     </div>

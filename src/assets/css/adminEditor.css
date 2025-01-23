@@ -15,7 +15,7 @@ body:has(.edit-screen) {
     background-color: var(--cwhite);
     padding: 5px;
     border-radius: 10px;
-    box-shadow: 0 9px 32px -6px var(--cblue);
+    /* box-shadow: 0 9px 32px -6px var(--cblue); */
     display: flex;
     gap: 10px;
     max-width: 8rem;
@@ -93,7 +93,7 @@ body:has(.edit-screen) {
     background: var(--clight);
     color: var(--cblack);
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0px var(--cpurple);
+    /* box-shadow: 0 3px 5px 0px var(--cpurple); */
     padding: 5px;
     inset: 1rem 50%;
     z-index: 1;

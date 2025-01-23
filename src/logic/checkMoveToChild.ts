@@ -1,5 +1,5 @@
 
-export default function checkMoveToChild (source, target) {
+export default function checkMoveToChild (source: string, target: string) {
     if(source === undefined || target === undefined) return  
     //check if the move is from a parent to his child
     let Source = source.split("-")

@@ -1,13 +1,13 @@
-export default function activateDragPage (e, AppCont, zoomAction){
+export default function activateDragPage (e: MouseEvent, AppCont: any, zoomAction:{inc: Function, dec: Function}){
     e = e || window.event;
     e.preventDefault();
 
-    function mouseMove (e){
+    function mouseMove (e:MouseEvent){
         AppCont.current.lastChild.style.top = AppCont.current.lastChild.offsetTop + e.movementY +"px"
         AppCont.current.lastChild.style.left = AppCont.current.lastChild.offsetLeft + e.movementX +"px"
     }
     
-    function KeyDown (e){
+    function KeyDown (e: KeyboardEvent){
         if(!AppCont.current.childNodes[3].classList.contains("d-none")) return
         if(e.code === "Space") {
             e.preventDefault()
@@ -17,12 +17,12 @@ export default function activateDragPage (e, AppCont, zoomAction){
         if(e.key === "Shift") document.body.style.cursor = "-webkit-zoom-in"
     }
     
-    function KeyUp (e) {
+    function KeyUp () {
         document.body.style.cursor = "auto"
         document.addEventListener('keydown', KeyDown)
         document.removeEventListener('mousemove', mouseMove)
     }
-    function Zoomevent (e) {
+    function Zoomevent (e: WheelEvent) {
         if(!e.shiftKey) return
         if(e.deltaY < 0) zoomAction.inc()
         else zoomAction.dec()
@@ -33,7 +33,7 @@ export default function activateDragPage (e, AppCont, zoomAction){
         document.removeEventListener('mousemove', mouseMove)
         document.removeEventListener('keyup', KeyUp)
         document.removeEventListener('wheel', Zoomevent)
-        AppCont.current.addEventListener("mouseenter", (e)=>{activateDragPage(e, AppCont, zoomAction)}, { once: true });
+        AppCont.current.addEventListener("mouseenter", (e: MouseEvent)=>{activateDragPage(e, AppCont, zoomAction)}, { once: true });
         return
     }
     if(!AppCont.current.childNodes[3].classList.contains("d-none")) return

@@ -5,7 +5,7 @@
     flex-direction: column;
     background-color: white;
     overflow: scroll;
-    box-shadow: 0 9px 32px -6px var(--clight);
+    /* box-shadow: 0 9px 32px -6px var(--clight); */
     position: fixed;
 }
 
@@ -137,20 +137,20 @@ h1, h2, h3, h4, h5, h6, p {
     opacity: 1;
 }
 
-.edit-screen .drop-place-adaptable > *:has(.render[select=true]) {
+.edit-screen .drop-place-adaptable > *:has(.render[data-select=true]) {
     position: relative;
 }
 
-[select=true]:not(.render),.render[select=true] > *{
+[data-select=true]:not(.render),.render[data-select=true] > *{
     position: relative;
 }
 
-.render[select=true] > *{
+.render[data-select=true] > *{
     opacity: 0.5;
 }
 
 
-[select=true]:not(.render)::after, .render[select=true] > *::after{    
+[data-select=true]:not(.render)::after, .render[data-select=true] > *::after{    
     content: "";
     box-sizing: border-box;
     inset: 0;
@@ -162,13 +162,13 @@ h1, h2, h3, h4, h5, h6, p {
     pointer-events: none;
 }
 
-.render[select=true] > *::after {
+.render[data-select=true] > *::after {
     opacity: 0.4;
 }
 
-.json-tree [select=true]{
+.json-tree [data-select=true]{
     z-index: 0;
-    box-shadow: 0 0px 2px var(--cpurple);
+    /* box-shadow: 0 0px 2px var(--cpurple); */
     position: relative;
     overflow: hidden;
 }
@@ -199,5 +199,5 @@ h1, h2, h3, h4, h5, h6, p {
 
 .dragging {
     opacity: 0.3;
-    box-shadow: 0 0px 30px 0px var(--cblack);
+    /* box-shadow: 0 0px 30px 0px var(--cblack); */
 }

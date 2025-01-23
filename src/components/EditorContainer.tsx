@@ -49,7 +49,7 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         "Class": ClassSelected ? <ClassEditor 
             classe={newClass} 
             setSelected={setSelectedClass}
-        /> : <Alert type="class"/>,
+        /> : <Alert/>,
         "ClassList": <SideBarClasses/>,
         "Componentes": <ComponentPicker/>
     }

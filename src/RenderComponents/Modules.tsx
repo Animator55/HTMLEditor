@@ -6,10 +6,11 @@ import { GlobalFunctions } from "../screens/AdminEditor";
 import checkMoveToChild from "../logic/checkMoveToChild";
 import RenderLevel from "../logic/jsonTreeGenerator";
 import { templates } from "./Templates";
+import { moduleType } from "../vite-env";
 
 library.add(fas)
 
-function switchTags(str:string, bool:boolean) {
+function switchTags(str: string, bool: boolean) {
     let newStr = str !== undefined ? !bool ? str.replace(/\*(.*?)\*/g, "<b>$1</b>") : str.replace(/(<b>|<\/b>)/g, "*") : ""
     newStr = !bool ? newStr.replace(/(?<!\<)\/(.*?)(?<!\<)\//g, "<i>$1</i>") : newStr.replace(/(<i>|<\/i>)/g, "/")
     newStr = !bool ? newStr.replace(/\_(.*?)\_/g, "<ins>$1</ins>") : newStr.replace(/(<ins>|<\/ins>)/g, "_")
@@ -17,64 +18,55 @@ function switchTags(str:string, bool:boolean) {
     return newStr
 }
 
-export function classStyles() {
-    let classStyle = {}
-    let classHover = {}
-    // if(classes !== "" && classes !== undefined){
-    //     let classArray = classes.split(" ")
-    //     for(let i=0; i<classArray.length; i++) {
-    //         if(cssList[classArray[i]] !== undefined){
-    //             classStyle = {...classStyle, ...cssList[classArray[i]].style}
-    //             classHover = {...classHover, ...cssList[classArray[i]].hover}
-    //         }
-    //     }
-    // }
-    return { "classStyle": classStyle, "classHover": classHover }
-}
+export function classStyles() { return { "classStyle": {}, "classHover": {} } }
 
-function DragStart(e) {
-    e.dataTransfer.setData("Text", e.target.id);
-    e.target.classList.add("dragging")
-    let renderedModule = document.querySelector(`.side-bar [id="${e.target.id}"]`)
+function DragStart(e: React.DragEvent) {
+    let target = e.target as HTMLDivElement
+    if (!target) return
+    e.dataTransfer.setData("Text", target.id);
+    target.classList.add("dragging")
+    let renderedModule = document.querySelector(`.side-bar [id="${target.id}"]`)
     renderedModule?.classList?.add("dragging")
 }
 
-export const Place = (props) => {
+export const Place = (props: {dNone: boolean, moduleKey: string}) => {
     const context = React.useContext(GlobalFunctions)
 
-    const [state, setState] = React.useState({
+    const [state, setState] = React.useState<moduleType>({
         components: undefined,
-        data: undefined,
+        data: {
+            className: "",
+            style: {}
+        },
         moduleKey: "",
         select: undefined,
         setSelected: undefined,
-        static: "",
-        fixed: "",
     })
-    const handlerSetState = (component, id:string) => {
+    const handlerSetState = (component: moduleType | undefined, id: string) => {
         setState({
-            components: [component],
-            data: undefined,
+            components: component === undefined ? component : [component],
+            data: {
+                className: "",
+                style: {}
+            },
             moduleKey: id,
             select: undefined,
             setSelected: undefined,
-            static: "true",
-            fixed: "true",
         })
     }
     return (<div className={props.dNone ? "d-none drop-place" : "drop-place"}>
         <div
             id={props.moduleKey}
             onDragOver={(e) => { e.preventDefault() }}
-            onDrop={(e) => { context.moveComponent(e) }}
+            onDrop={(e) => { if (context) context.moveComponent(e) }}
             className="placeInvisible pre-render-drop"
-            onDragEnter={(e) => {
+            onDragEnter={() => {
                 let [dragging, id] = document.body.getAttribute("dragging")!.split(".");
                 let isNew = id === "New"
                 let idSplit = id.split("-")
                 let component
                 if (!isNew) {
-                    if (!checkMoveToChild(id, props.moduleKey)) return
+                    if (!checkMoveToChild(id, props.moduleKey) || !context) return
                     idSplit[0] = `${parseInt(idSplit[0]) - 1}`
                     component = context.JSONLocationSearch(idSplit)[idSplit[idSplit?.length - 1]]
                 }
@@ -84,17 +76,17 @@ export const Place = (props) => {
                 }
                 handlerSetState(component, props.moduleKey.slice(0, -1))
             }}
-            onDragLeave={(e) => {
+            onDragLeave={() => {
                 handlerSetState(undefined, "")
             }}
         >
-            {state.moduleKey !== "" ? <div className="render" select="true">
+            {state.moduleKey !== "" ? <div className="render" data-select="true">
                 {props.dNone ?
                     <RenderLevel
                         array={state.components}
+                        refresh={()=>{}}
                         preRenderIndex={state.moduleKey}
-                        fixedComponents={[]}
-                        staticComponents={[]}
+                        generatePlaces={false}
                     />
                     :
                     <ComponentsRender
@@ -108,17 +100,17 @@ export const Place = (props) => {
     </div>)
 }
 
-export const Text = (props) => {
+export const Text = (props: moduleType) => {
     const context = React.useContext(GlobalFunctions)
-    const [state, setState] = React.useState({
+    const state = {
         fastEditor: false,
-        data: props.data.text !== "" ? { ...props.data } :{
+        data: props.data.text !== "" ? { ...props.data } : {
             text: ""
         }
-    })
+    }
 
 
-    const createTextHTML = (text:string, type:string)=> {
+    const createTextHTML = (text: string, type: string) => {
         let str
         text !== '' && text !== undefined ? str = parseSpecialCharacters(text) : str = '';
         let component = `<${type}>${str}</${type}>`
@@ -126,30 +118,30 @@ export const Text = (props) => {
         return component
     }
 
-    function parseSpecialCharacters(str:string) {
+    function parseSpecialCharacters(str: string) {
         let parsedStr = stylize(linkify(decodeURIComponent(cleanHTMLTags(str))))
         return parsedStr
     }
 
-    function cleanHTMLTags(str:string) {
+    function cleanHTMLTags(str: string) {
         // let cleanedStr = str.replace(/(<([^>]+)>)/ig, '')
         // return cleanedStr
         return str
     }
 
-    function stylize(str:string) {
+    function stylize(str: string) {
         let stylizedStr = str.replace(/{type:(?:'|")style(?:'|"),data:(?:'|")(.{5,}?)(?:'|"),text:(?:'|")(.{1,}?)(?:'|")}/g, '<span style="$1">$2</span>')
         return stylizedStr
     }
 
-    function linkify(str:string) {
+    function linkify(str: string) {
         let linkifiedStr = str.replace(/{type:(?:'|")link(?:'|"),data:(?:'|")([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(?:\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)(?:'|"),text:(?:'|")(.{1,}?)(?:'|")}/g, '<a target="_blank" rel="noopener" referrerpolicy="no-referrer" href="$1">$2</a>')
         return linkifiedStr
     }
 
     return <div
         data-text="Escribe aquí"
-        type="module"
+        data-type="module"
         title={"Text (" + props.moduleKey + ")"}
         // onKeyDown={async(e)=>{
         //     if(e.key === "Enter") {
@@ -159,59 +151,78 @@ export const Text = (props) => {
         //     }
         // }} 
         // contentEditable="true"
-        draggable={props.fixed === true ? "false" : "true"}
+        draggable={"true"}
         onDragStart={DragStart}
-        onDragEnd={(e) => { e.target.className = props.data.className }}
+        onDragEnd={(e) => {
+            let target = e.target as HTMLDivElement
+            if (target) target.className = props.data.className
+        }}
         className={props.data.className}
         style={props.data.style}
-        onClick={(e) => { if (e.target.id === props.moduleKey) context.selectComponent(e, true) }}
-        onDoubleClick={(e) => { if (e.target.id === props.moduleKey) context.activatePopEditor(e) }}
-        dangerouslySetInnerHTML={{ __html: switchTags(createTextHTML(state.data.text, props.data.type), state.fastEditor) }}
+        onClick={(e) => {
+            let target = e.target as HTMLDivElement
+            if (target && target.id === props.moduleKey && context) context.selectComponent(e, true)
+        }}
+        onDoubleClick={(e) => {
+            let target = e.target as HTMLDivElement
+            if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
+        }}
+        dangerouslySetInnerHTML={{ __html: switchTags(createTextHTML(state.data.text!, props.data.type!), state.fastEditor) }}
         id={props.moduleKey}>
     </div>
 }
 
-export const Image = (props) => {
+export const Image = (props: moduleType) => {
     const context = React.useContext(GlobalFunctions)
     return (
         <div
             className={"editor-img " + props.data.className}
             style={props.data.style}
             id={props.moduleKey}
-            draggable={props.fixed === true ? "false" : "true"}
+            draggable={"true"}
             onDragStart={DragStart}
-            onDragEnd={(e) => { e.target.className = props.data.className }}
-            type="module"
+            onDragEnd={(e) => {
+                let target = e.target as HTMLDivElement
+                if (target) target.className = props.data.className
+            }}
+            data-type="module"
             title={"Image (" + props.moduleKey + ")"}
-            onClick={(e) => { if (e.target.id === props.moduleKey) context.selectComponent(e, true) }}
-            onDoubleClick={(e) => { if (e.target.id === props.moduleKey) context.activatePopEditor(e) }}
+            onClick={(e) => {
+                let target = e.target as HTMLDivElement
+                if (target && target.id === props.moduleKey && context) context.selectComponent(e, true)
+            }}
+            onDoubleClick={(e) => {
+                let target = e.target as HTMLDivElement
+                if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
+            }}
         >
             <img src={props.data.src}></img>
         </div>
     )
 }
-export const Container = (props) => {
+export const Container = (props: moduleType) => {
     const context = React.useContext(GlobalFunctions)
-    let fixed = props.fixed === true ? true : props.fixed?.includes("Container")
     return (
         <div
             className={props.data.className}
             style={props.data.style}
             id={props.moduleKey}
-            onClick={(e) => { if (e.target.id === props.moduleKey) context.selectComponent(e, true) }}
-            draggable={props.fixed === true ? "false" : "true"}
-            type="container"
+            onClick={(e) => { 
+                let target = e.target as HTMLDivElement
+                if (target && target.id === props.moduleKey && context) context.selectComponent(e, true) }}
+            draggable={"true"}
+            data-type="container"
             title={"Container (" + props.moduleKey + ")"}
-            fixed={`${fixed}`}
 
             onDragStart={DragStart}
-            onDragEnd={(e) => { e.target.className = props.data.className }}
+            onDragEnd={(e) => { 
+                let target = e.target as HTMLDivElement
+                if (target)target.className = props.data.className }}
         >
             <ComponentsRender
                 {...props}
-                fixed={fixed ? true : props.fixed}
                 parentIndex={props.moduleKey}
-                generatePlaces={!fixed}
+                generatePlaces={true}
             />
         </div>
     )

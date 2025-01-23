@@ -1,4 +1,4 @@
-export default function filterArray (value, array, filter) {
+export default function filterArray (value: string, array:any[], filter: string| undefined) {
     if(value === "") return []
     let regex = new RegExp(value, "i")
     let copiedArray = [...array]

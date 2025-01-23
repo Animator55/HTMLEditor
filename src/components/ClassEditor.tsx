@@ -4,10 +4,10 @@ import React from "react";
 import { Classe } from "../RenderComponents/Editors";
 import { GlobalFunctions } from "../screens/AdminEditor";
 
-export default function ClassEditor({classe, setSelected}: {classe, setSelected:Function}) {
+export default function ClassEditor({classe, setSelected}: {classe: any, setSelected:Function}) {
     const GlobalFunc = React.useContext(GlobalFunctions)
-    const seeElementsSelect = (bool)=>{
-        let elements = document.querySelectorAll(`[class~="${GlobalFunc.selectedClass.name}"]`)
+    const seeElementsSelect = (bool:boolean)=>{
+        let elements = document.querySelectorAll(`[class~="${GlobalFunc ? GlobalFunc.selectedClass.name: ""}"]`)
         if(elements.length === 0) return
         if(bool) 
             for(let i=0; i < elements.length; i++) {elements[i].classList.add("selectedClass")}

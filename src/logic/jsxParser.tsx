@@ -1,17 +1,18 @@
 import React from 'react';
 import JsxParser from "react-jsx-parser";
 import * as OctagonalModules from "../RenderComponents/Modules";
-import { ToastContext } from "../App";
+import { moduleType } from '../vite-env';
+// import { ToastContext } from "../App";
 
-export default function ComponentsRender(props) {
-    const activateToast = React.useContext(ToastContext)
-    function Toast(id){
-        activateToast([true, {title: "Fixed!", text: `The component (${id}) is immutable. It cannot be selected.`, result: "info"}])
-    }
+export default function ComponentsRender(props: moduleType) {
+    // const activateToast = React.useContext(ToastContext)
+    // function Toast(id){
+    //     activateToast([true, {title: "Fixed!", text: `The component (${id}) is immutable. It cannot be selected.`, result: "info"}])
+    // }
     if (props.components === undefined) return 
     let firstLevelAccKey = 0
     let innerAccKey = 0
-    let JSX = props.components.map(module => {
+    let JSX = props.components.map((module: moduleType | "placeholder") => {
         if(module === "placeholder") return
         let component = module.type
         let completeid
@@ -24,6 +25,7 @@ export default function ComponentsRender(props) {
         } 
         return (<React.Fragment key={Math.random()}>
             {props.generatePlaces? <OctagonalModules.Place 
+                dNone={false}
                 moduleKey={completeid+"."}
             />:null}
             <JsxParser
@@ -31,7 +33,6 @@ export default function ComponentsRender(props) {
                     moduleData: module.data,
                     moduleChildComponents: module.components,
                     moduleKey: completeid,
-                    fixedProp: props.fixed,
                 }}
                 renderInWrapper={false}
                 key={completeid}
@@ -47,10 +48,10 @@ export default function ComponentsRender(props) {
         </React.Fragment>)
     })
 
-    let lastid = props.components.length + 1
+    let lastid = `${props.components.length + 1}`
     if(props.parentIndex !== undefined) lastid = props.parentIndex + "-" + props.components.length
     return <>
         {JSX}
-        {props.generatePlaces? <OctagonalModules.Place key={Math.random()} moduleKey={lastid+"."}/>:null}
+        {props.generatePlaces? <OctagonalModules.Place dNone={false} key={Math.random()} moduleKey={lastid+"."}/>:null}
     </>
 }
