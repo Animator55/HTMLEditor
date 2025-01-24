@@ -7,9 +7,9 @@ import "../../assets/css/classesPage.css"
 
 import { GlobalFunctions } from "../../screens/AdminEditor";
 
-export default function SideBarClasses ({list}: {list: any}) {
+export default function SideBarClasses () {
     const GlobalFunc = React.useContext(GlobalFunctions)
-    const cssList = GlobalFunc !== null ? GlobalFunc : list 
+    const cssList = GlobalFunc!
     const [List, setList] = React.useState(cssList.cssNames)
     const selectedClass = cssList.selectedClass?.name
 
@@ -26,7 +26,8 @@ export default function SideBarClasses ({list}: {list: any}) {
                     className="w-100 margin-0-auto" 
                     placeholder="Nombre de Clase"
                     onKeyDown={(e)=>{if(e.key === "Enter") {
-                        let filtered = e.target.value === "" ? cssList.cssNames : filterArray(e.target.value, List)
+                        let target = e.target as HTMLInputElement
+                        let filtered = target.value === "" ? cssList.cssNames : filterArray(target.value, List)
                         setList(filtered)
                     }}}
                 />
@@ -36,7 +37,7 @@ export default function SideBarClasses ({list}: {list: any}) {
 
     function ListComponent (){
         return <ul className="item-list-editor">
-            {List.map((item, i)=>{
+            {List.map((item: string, i: number)=>{
                 return <div 
                     className={selectedClass === item ? "list-item-editor selected" : "list-item-editor"}
                     key={Math.random()}

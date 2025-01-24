@@ -5,18 +5,21 @@ import SideBarClasses from "./SideBar_Pages/ClassPage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightToBracket, faBoxArchive, faFilePen, faPenToSquare, faWandMagicSparkles, faWarning } from "@fortawesome/free-solid-svg-icons";
 import ComponentPicker from "./SideBar_Pages/ComponentPicker";
+import { moduleType } from "../vite-env";
 
-export default function EditorContainer ({Container, EditorRef, editor, Class, setSelected, setSelectedClass, selectedFonts}){
+export default function EditorContainer ({Container, EditorRef, editor, Class, setSelected, setSelectedClass, selectedFonts}:
+    {Container: any, EditorRef:any, editor: moduleType, Class:any, setSelected: Function, setSelectedClass: Function, selectedFonts: any}
+){
     const [page, setPage] = React.useState("Editor")
 
-    const resizeWidth = (e) => {
+    const resizeWidth = (e: React.MouseEvent) => {
         if(!Container?.display) return
         e = e || window.event;
         e.preventDefault();
         let container = Container.current
         let prevSize = {x: parseInt(container.style.minWidth)}
         
-        function dragMove(dragMov){
+        function dragMove(dragMov: MouseEvent){
             container.style.maxWidth = container.style.minWidth = prevSize.x + e.pageX - dragMov.pageX > 235 ? 
                 prevSize.x + e.pageX - dragMov.pageX < 400 ? 
                     prevSize.x + e.pageX - dragMov.pageX + "px" : "400px"
@@ -44,7 +47,7 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         </section>
     }
 
-    const pages = {
+    const pages: {[key:string]: any} = {
         "Editor":  <></>,
         "Class": ClassSelected ? <ClassEditor 
             classe={newClass} 
@@ -54,7 +57,7 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         "Componentes": <ComponentPicker/>
     }
 
-    const icons = {
+    const icons: {[key:string]: any} = {
         "Editor" : faPenToSquare,
         "Class": faWandMagicSparkles,
         "ClassList": faFilePen,
@@ -68,7 +71,7 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         }
     }, [Class])
 
-    const changePage = (entry)=>{
+    const changePage = (entry:string)=>{
         Container["page"] = entry
         if(!Container["display"]) {
             Container["display"] = true; 
@@ -77,6 +80,7 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         if(entry === "Editor" && EditorRef.selected !== undefined){ 
             let key = EditorRef["selected"]?.id
             let elementRendered = document.querySelector(`.edit-screen [id="${key}"]`)
+            if(!elementRendered) return
             EditorRef["selected"] = elementRendered
             elementRendered.setAttribute("select", "true")
             document.querySelector(`.side-bar [id="${key}"]`)?.setAttribute("select", "true")
@@ -88,7 +92,8 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
         ref={Container} 
         className={Container?.display ? "container-editors expanded" : "container-editors"}
         onClick={(e)=>{
-            if(e.target.classList.contains("container-editors")) {
+            let target = e.target as HTMLDivElement
+            if(target && target.classList.contains("container-editors")) {
                 Container["display"] = true
                 Container.current.classList.add("expanded")
                 setPage(Container["page"]); 

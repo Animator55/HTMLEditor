@@ -1,17 +1,18 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFloppyDisk, faCircleXmark, faFolderOpen, faShareFromSquare } from '@fortawesome/free-solid-svg-icons'
+import { faFloppyDisk, faCircleXmark, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import PopUp from "../components/PopUp";
 import "../assets/css/navBar.css"
+import { moduleType } from "../vite-env";
 
-export default function NavBar({ JSONObj }) {
+export default function NavBar({ JSONObj }:{JSONObj: {content: moduleType}}) {
     const [close, setPopUp] = React.useState(false)
-    const pagesSpan = React.useRef()
+    const pagesSpan = React.useRef<HTMLDivElement | null>(null)
 
-    const progressBar = React.useRef()
+    const progressBar = React.useRef<HTMLDivElement | null>(null)
 
     const toggleSpan = () => {
-        pagesSpan.current.classList.toggle("expanded")
+        if(pagesSpan.current)pagesSpan.current.classList.toggle("expanded")
     }
 
     ///components
@@ -21,7 +22,7 @@ export default function NavBar({ JSONObj }) {
             <button
                 className="btn-span"
                 onClick={toggleSpan}
-                onBlur={() => { if (pagesSpan.current.classList.contains("expanded")) toggleSpan() }}
+                onBlur={() => { if (pagesSpan.current && pagesSpan.current.classList.contains("expanded")) toggleSpan() }}
             >
                 <FontAwesomeIcon icon={faFolderOpen} size="xl" className="margin-right-5px" />
             </button>
@@ -45,8 +46,9 @@ export default function NavBar({ JSONObj }) {
         return <div className="d-flex">
             <ProgressBar />
             <button onClick={() => {
+                if(!progressBar.current)return
                 progressBar.current.classList.remove("d-none");
-                setTimeout(() => { progressBar.current.classList.add("d-none") }, 6000)
+                setTimeout(() => { progressBar.current && progressBar.current.classList.add("d-none") }, 6000)
                 console.log(JSONObj)
             }}>
                 <FontAwesomeIcon icon={faFloppyDisk} size="xl" />

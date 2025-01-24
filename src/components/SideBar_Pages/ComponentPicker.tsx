@@ -1,9 +1,7 @@
-import { faArrowPointer, faImage, faObjectGroup, faPager, faPhotoFilm, faScroll, faSearch, faShapes, faSquarePollHorizontal, faSquareShareNodes, faVectorSquare } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import { faImage, faObjectGroup, faPager, faPhotoFilm, faScroll, faSearch, faShapes, faSquarePollHorizontal, faSquareShareNodes, faVectorSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getComponents } from "../../logic/APIs";
 
-let moduleTypes ={
+let moduleTypes: {[key:string]:any} ={
     "Container": faObjectGroup,
     "Columns": faSquarePollHorizontal,
     "Header": faPager,
@@ -15,7 +13,7 @@ let moduleTypes ={
     "ProductsGrid": faPhotoFilm
 }
 
-const selectIcon = (type) => {
+const selectIcon = (type: string) => {
     let icon = moduleTypes[type]
     if(icon === undefined) return faVectorSquare
 
@@ -23,22 +21,23 @@ const selectIcon = (type) => {
 }
 
 let ComponentsDefault = ["Container","Text","Image"]
-let requestCounter = 0
 
-function TemplatesList ({templatesList}){
-    const RenderNames = ({component})=>{
+function TemplatesList ({templatesList}: {templatesList:string[]}){
+    const RenderNames = ({component}:{component: string})=>{
         return <div
             className="comp-wraper inverse"
             draggable
-            type={component}
+            data-type={component}
             onDragStart={(e)=>{
                 document.body.setAttribute("dragging", component+".New"); 
                 e.dataTransfer.setData("Text", component)
-                e.target.classList.add("dragging")
+                let target = e.target as HTMLDivElement
+                if(target)target.classList.add("dragging")
             }}
             onDragEnd={(e)=>{
                 document.body.setAttribute("dragging", "undefined"); 
-                e.target.classList.remove("dragging")
+                let target = e.target as HTMLDivElement
+                if(target)target.classList.remove("dragging")
             }}
         >
             <button className="comp-selector">
@@ -50,7 +49,7 @@ function TemplatesList ({templatesList}){
 
     return templatesList !== undefined ? <section className="page">
         <ul className="item-list-editor">
-            {templatesList.map(component=>{
+            {templatesList.map((component: string)=>{
                 return <RenderNames component={component} key={Math.random()}/>
             })}
         </ul>
@@ -58,35 +57,6 @@ function TemplatesList ({templatesList}){
 }
 
 export default function ComponentPicker ({}){
-    const [customList, setCustomList] = React.useState()
-    const [Page, setPage] = React.useState("Containers")
-
-    const getCustomComponents = async()=>{
-        // let jsonContent = await getComponents(id)
-        // switch(jsonContent){
-        //     // case "auth": 
-        //     //     activateAlert(true)
-        //     // break
-        //     case false: 
-        //         setCustomList()
-        //         // activateToast([true, {title: "Error!", text: "Cannot request the list, please try later.", result: "error"}])
-        //     break
-        //     default: 
-        //         setCustomList(jsonContent[0])
-        // }
-        // ComponentsDefault.Custom.push("Navigation", "Footer")
-    }
-
-    const icons = {
-        Containers: faObjectGroup, 
-        Text: faScroll, 
-        Multimedia: faImage,
-        Interactive: faArrowPointer,
-        Custom: faVectorSquare
-    }
-
-    if(customList === undefined) {requestCounter++; if(requestCounter < 2) getCustomComponents()}
-    else requestCounter = 0
     return <section className="component-editor">
         <section className="editor-form">
             <TemplatesList templatesList={ComponentsDefault}/>

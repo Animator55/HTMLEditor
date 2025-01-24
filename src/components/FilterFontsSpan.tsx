@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import "../assets/css/sortList.css";
 
-export default function FilterFontsSpan({filters, selected, click}){
-    const list = React.useRef()
+export default function FilterFontsSpan({filters, selected, click}:{filters:{[key:string]:any}, selected: string, click: Function}){
+    const list = React.useRef<HTMLDivElement | null>(null)
 
     return (<section>
         <div className="sort-list span-column" ref={list}>
@@ -15,8 +15,8 @@ export default function FilterFontsSpan({filters, selected, click}){
                         defaultValue={key}
                         key={Math.random()}
                     >
-                        <button onClick={(e)=>{
-                            list.current.classList.add("expanded")
+                        <button onClick={()=>{
+                            if(list.current)list.current.classList.add("expanded")
                             click(key)
                         }}>
                             <p>{filters[key]}</p>
@@ -27,7 +27,8 @@ export default function FilterFontsSpan({filters, selected, click}){
         </div>
         <button 
             className="btn-expand" 
-            onClick={(e)=>{
+            onClick={()=>{
+                if(!list.current)return 
                 if(list.current.classList.contains("expanded")) list.current.classList.remove("expanded") 
                 else list.current.classList.add("expanded")
             }}

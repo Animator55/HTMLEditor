@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import "../assets/css/imageInput.css";
 
-export default function ImageInput ({change}) {
+export default function ImageInput ({change}:{change: Function}) {
     return <form id="image-form">
         <input 
             id="input-el-image" 
@@ -11,7 +11,7 @@ export default function ImageInput ({change}) {
             accept="image/bmp,image/png,image/jpeg,image/jpg" 
             multiple
             name="file"
-            onChange={change}
+            onChange={(e)=>{change(e)}}
             />
         <label id="image-label" className='btn-cblack margin-0-auto' htmlFor="input-el-image">
             <FontAwesomeIcon icon={faUpload}/>
@@ -20,8 +20,8 @@ export default function ImageInput ({change}) {
     </form>
 }
 
-export function ImageDropZone ({change}){
-    const Drop = (e)=>{
+export function ImageDropZone ({change}:{change: Function}){
+    const Drop = (e: React.DragEvent)=>{
         console.log(e)
         e.preventDefault()
         let data = e.dataTransfer.files
@@ -29,7 +29,10 @@ export function ImageDropZone ({change}){
     }
     return <div 
         className='image-drop'
-        onDragOver={(e)=>{e.target.classList.add("visible")}}
+        onDragOver={(e)=>{
+            let target = e.target as HTMLDivElement
+            target.classList.add("visible")
+        }}
     >
         <input 
             id="input-el-image" 
@@ -37,7 +40,7 @@ export function ImageDropZone ({change}){
             accept="image/bmp,image/png,image/jpeg,image/jpg" 
             multiple
             name="file"
-            onChange={change}
+            onChange={(e)=>{change(e)}}
         />
         <label htmlFor="input-el-image" onClick={()=>{console.log("a")}} onDrop={Drop}>
             <FontAwesomeIcon icon={faUpload}/>

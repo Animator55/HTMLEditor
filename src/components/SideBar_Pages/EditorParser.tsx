@@ -1,19 +1,23 @@
-import { faCircleXmark, faEye, faTrash, faWarning, faWindowRestore } from "@fortawesome/free-solid-svg-icons";
+import { faCircleXmark, faTrash, faWarning } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import JsxParser from "react-jsx-parser";
 import * as OctagonalEditors from "../../RenderComponents/Editors"
 import { GlobalFunctions } from "../../screens/AdminEditor";
+import { moduleType } from "../../vite-env";
 
-let EditorJSON
+let EditorJSON: moduleType | undefined= undefined
 
-export default function EditorParser({ editor, setSelected, selectedFonts, EditorRef, DNone }) {
+export default function EditorParser({ editor, setSelected, selectedFonts, EditorRef }:
+    { editor: moduleType| "New", setSelected: Function, selectedFonts: any, EditorRef: any}
+) {
     const GlobalFunc = React.useContext(GlobalFunctions)
 
     const [refresh, activateRefresh] = React.useState(false)
 
-    const RefUpdate = (target, name, val) => {
+    const RefUpdate = (target:string, name:string, val:any) => {
         const elementKeys = { text: "innerText" }
+        if(!EditorJSON || !GlobalFunc) return  
 
         if (target === "style") {
             EditorRef["selected"]["style"][name] = val
@@ -21,7 +25,10 @@ export default function EditorParser({ editor, setSelected, selectedFonts, Edito
             GlobalFunc.changeJSON.edit(EditorRef["selected"].id, EditorJSON)
         }
         else if (target === "className") EditorRef["selected"].className = EditorJSON.data["className"] = val
-        else EditorJSON.data[target] = EditorRef["selected"][elementKeys[target]] = val
+        else {
+            EditorJSON.data.text = val as string
+            EditorRef["selected"][elementKeys.text] = val
+        }
     }
 
     function EditorTopBar() {
@@ -34,7 +41,7 @@ export default function EditorParser({ editor, setSelected, selectedFonts, Edito
                 :
                 <>
                     <button
-                        onClick={() => { GlobalFunc.changeJSON.delete(EditorJSON?.key, EditorJSON?.index) }}
+                        onClick={() => { if(GlobalFunc)GlobalFunc.changeJSON.delete(EditorJSON?.key) }}
                     ><FontAwesomeIcon icon={faTrash} size="xl" /></button>
                 </>
             }
@@ -47,10 +54,10 @@ export default function EditorParser({ editor, setSelected, selectedFonts, Edito
             bindings={{
                 editorProp: editor === "New" ? editor : EditorJSON,
                 fontArrayProp: selectedFonts,
-                submitProp: (target, name, val) => { RefUpdate(target, name, val) },
+                submitProp: (target:string, name:string, val:any) => { RefUpdate(target, name, val) },
             }}
             renderInWrapper={false} components={{ OctagonalEditors }} key={Math.random()}
-            jsx={`<OctagonalEditors.${editor?.key === "New" ? editor?.key : EditorJSON?.type} 
+            jsx={`<OctagonalEditors.${EditorJSON?.type} 
                 editor={editorProp} 
                 fonts={fontArrayProp} 
                 submit={submitProp}/>`}
@@ -60,6 +67,7 @@ export default function EditorParser({ editor, setSelected, selectedFonts, Edito
     function RefreshButton() {
         return <button className="d-none" onClick={() => {
             if (EditorRef === undefined || EditorRef["selected"]?.id === undefined) return
+            if(!GlobalFunc) return  
             //convert
             let splited = EditorRef["selected"].id.split("-")
             splited[0] = splited[0] - 1
@@ -67,7 +75,7 @@ export default function EditorParser({ editor, setSelected, selectedFonts, Edito
             let location = GlobalFunc.JSONLocationSearch(splited)
             //set
             EditorJSON = location[splited[splited.length - 1]]
-            EditorJSON["key"] = EditorRef["selected"].id
+            if(EditorJSON)EditorJSON["key"] = EditorRef["selected"].id
             activateRefresh(!refresh)
         }}></button>
     }

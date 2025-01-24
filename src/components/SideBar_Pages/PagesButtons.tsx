@@ -1,14 +1,15 @@
-import React from "react"
-import { faArrowRightToBracket, faClapperboard, faFolderTree, faFont, faList } from "@fortawesome/free-solid-svg-icons"
+import { faArrowRightToBracket, faFolderTree } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
-export default function PagesButtons({displayAll, sideBarPage, setSideBarPage,setSideBarWidth}){
-    let Pages = {
+export default function PagesButtons({displayAll, sideBarPage, setSideBarPage,setSideBarWidth}:
+    {displayAll: boolean, sideBarPage:string, setSideBarPage:Function,setSideBarWidth: Function}
+){
+    let Pages: {[key:string]: any} = {
         // "General":"General",
         "Components":"Componentes",
         //  "Animations" : "Animaciones"
         }
-    const Icons = {
+    const Icons: {[key:string]: any} = {
         // "General":faList,
         "Components":faFolderTree,
         // "Animations": faClapperboard
@@ -33,8 +34,10 @@ export default function PagesButtons({displayAll, sideBarPage, setSideBarPage,se
     }
     return <nav>
         <button onClick={(e)=>{
-            let isExpanded = e.target.parentElement.parentElement.classList.contains("expanded")
-            e.target.parentElement.parentElement.classList.toggle("expanded")
+            let target = e.target as HTMLDivElement
+            if(!target) return
+            let isExpanded = target.parentElement!.parentElement!.classList.contains("expanded")
+            target.parentElement!.parentElement!.classList.toggle("expanded")
             setSideBarWidth(isExpanded ? 50 : 233)
         }}><FontAwesomeIcon icon={faArrowRightToBracket} /></button>
         {JSX}

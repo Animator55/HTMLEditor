@@ -1,30 +1,33 @@
-import React from "react";
+import React from "react"
 
-export default function ReSize ({EditorRef,AppCont, Resize}){
+export default function ReSize ({EditorRef,AppCont, Resize}:{EditorRef: any,AppCont:any, Resize:Function}){
 
-    const activate = (e)=>{
-        if(!e.target.classList.contains("resize-listener")) return
+    const activate = (e: React.MouseEvent)=>{
+        let target = e.target as HTMLDivElement
+        if(!target || !target.classList.contains("resize-listener")) return
         if(EditorRef.selected === undefined || EditorRef.selectedCoords === undefined) return
-        e.target.classList.toggle("d-none")
-        let zone = e.target.firstChild
+        target.classList.toggle("d-none")
+        let zone = target.firstChild as HTMLDivElement
         let selected = EditorRef.selected
         let coords = EditorRef.selectedCoords
         let scale = AppCont.current.lastChild.style.transform.split("(")[1]
         scale = parseFloat(scale)
+        if(!zone) return 
 
         zone.style.top = coords.Y +"px"
         zone.style.left = coords.X +"px"
         zone.style.height = selected.clientHeight * scale + 2 +"px"
         zone.style.width = selected.clientWidth * scale + 2 +"px"
 
-        document.addEventListener("wheel", ()=>{e.target.classList.add("d-none")})
-        document.addEventListener("keydown", ()=>{e.target.classList.add("d-none")})
+        document.addEventListener("wheel", ()=>{target.classList.add("d-none")})
+        document.addEventListener("keydown", ()=>{target.classList.add("d-none")})
     }
 
-    const Drag = (e)=>{
+    const Drag = (e: React.MouseEvent)=>{
         e = e || window.event;
         e.preventDefault();
-        let isX = e.target.classList.contains("right")
+        let target = e.target as HTMLDivElement
+        let isX = target.classList.contains("right")
         let scale = AppCont.current.lastChild.style.transform.split("(")[1]
         scale = parseFloat(scale)
         let prevSize = {
@@ -32,17 +35,17 @@ export default function ReSize ({EditorRef,AppCont, Resize}){
             y: EditorRef.selected.clientHeight
         }
 
-        function dragMoveX(dragMov){
+        function dragMoveX(dragMov: MouseEvent){
             AppCont.current.firstChild.classList.add("d-none")
             prevSize.x += dragMov.movementX/scale
             EditorRef.selected.style.width = prevSize.x + "px"
         }
-        function dragMoveY(dragMov){
+        function dragMoveY(dragMov: MouseEvent){
             AppCont.current.firstChild.classList.add("d-none")
             prevSize.y += dragMov.movementY/scale
             EditorRef.selected.style.height = prevSize.y + "px"
         }
-        function dragEnd(e){
+        function dragEnd(){
             document.removeEventListener('mousemove', isX ? dragMoveX : dragMoveY);
             document.removeEventListener('mouseup', dragEnd);
             let changes = {width: EditorRef.selected.style.width, height: EditorRef.selected.style.height}

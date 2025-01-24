@@ -1,13 +1,14 @@
-import React from "react";
 
 import "../assets/css/popUp.css";
 
-export default function PopUp ({ visibility, setPopUp, confirm}) {
+export default function PopUp ({ visibility, setPopUp, confirm}:{ visibility:boolean, setPopUp: Function, confirm: Function}) {
     return (
         <>
             {visibility ? <div 
                 className="form-background" 
-                onClick={(e)=>{if(e.target.className === "form-background") {
+                onClick={(e)=>{
+                    let target = e.target as HTMLDivElement
+                    if(target.className === "form-background") {
                     setPopUp(false);
                 }}
             }>
