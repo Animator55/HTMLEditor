@@ -1,7 +1,7 @@
 import { faCropSimple, faExpand, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export default function Zoom ({resolution, AppCont, zoomAction}:{resolution:{x:string, y:string}, AppCont:any, zoomAction:{dec: Function, inc: Function}}) {
+export default function Zoom ({resolution, AppCont, zoomAction}:{resolution:{x:number, y:number}, AppCont:any, zoomAction:{dec: Function, inc: Function}}) {
     return <div className="resolution">
         <section className="resolution-zone">
             <input 
@@ -9,7 +9,7 @@ export default function Zoom ({resolution, AppCont, zoomAction}:{resolution:{x:s
                 type="number" 
                 defaultValue={resolution.x} 
                 onChange={(e)=>{if(e.target.value !== null) 
-                    resolution.x = e.target.value
+                    resolution.x = parseInt(e.target.value)
                     AppCont.current.lastChild.style.width = resolution.x + "px"
                 }}
             />
@@ -19,7 +19,7 @@ export default function Zoom ({resolution, AppCont, zoomAction}:{resolution:{x:s
                 type="number" 
                 defaultValue={resolution.y} 
                 onChange={(e)=>{if(e.target.value !== null) 
-                    resolution.y = e.target.value
+                    resolution.y = parseInt(e.target.value)
                     AppCont.current.lastChild.style.height = resolution.y + "px"
                 }}
             />

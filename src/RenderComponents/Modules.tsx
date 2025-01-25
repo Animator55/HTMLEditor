@@ -161,6 +161,7 @@ export const Text = (props: moduleType) => {
         style={props.data.style}
         onClick={(e) => {
             let target = e.target as HTMLDivElement
+            console.log(target && target.id === props.moduleKey && context, e)
             if (target && target.id === props.moduleKey && context) context.selectComponent(e, true)
         }}
         onDoubleClick={(e) => {

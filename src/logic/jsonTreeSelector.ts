@@ -14,7 +14,7 @@ export default function selectInJson(source: string, LocalJSON: {content: module
     return Object.assign({"key": source}, sourceObj)
 }
 
-export function JSONLocationSearch (Location:string[], JSON:{content: moduleType[]}) {
+export function JSONLocationSearch (Location:string[], JSON:{content: Array<moduleType>}) {
     let LocationObj = JSON.content
     let loopIndex = 1
 

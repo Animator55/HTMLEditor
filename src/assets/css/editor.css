@@ -149,6 +149,10 @@ h1, h2, h3, h4, h5, h6, p {
     opacity: 0.5;
 }
 
+[data-type=module] * {
+    pointer-events: none;
+}
+
 
 [data-select=true]:not(.render)::after, .render[data-select=true] > *::after{    
     content: "";

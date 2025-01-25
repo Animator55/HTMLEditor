@@ -1,57 +1,46 @@
 import React from 'react';
-import JsxParser from "react-jsx-parser";
-import * as OctagonalModules from "../RenderComponents/Modules";
 import { moduleType } from '../vite-env';
-// import { ToastContext } from "../App";
+import { Container, Image, Place, Text } from '../RenderComponents/Modules';
+
+const componentSelector: { [key: string]: any } = {
+    "Image": (props: moduleType) => { return <Image {...props} /> },
+    "Container": (props: moduleType) => { return <Container {...props} /> },
+    "Text": (props: moduleType) => { return <Text {...props} /> },
+}
 
 export default function ComponentsRender(props: moduleType) {
-    // const activateToast = React.useContext(ToastContext)
-    // function Toast(id){
-    //     activateToast([true, {title: "Fixed!", text: `The component (${id}) is immutable. It cannot be selected.`, result: "info"}])
-    // }
-    if (props.components === undefined) return 
+    if (props.components === undefined) return
     let firstLevelAccKey = 0
     let innerAccKey = 0
-    let JSX = props.components.map((module: moduleType | "placeholder") => {
-        if(module === "placeholder") return
+    let JSX = props.components.map((module: moduleType) => {
+        if (module.type === "placeholder") return
         let component = module.type
         let completeid
 
+        if (!component) return
         firstLevelAccKey++
         completeid = firstLevelAccKey.toString()
-        if(props.parentIndex !== undefined){
+        if (props.parentIndex !== undefined) {
             completeid = props.parentIndex + "-" + innerAccKey
             innerAccKey++
-        } 
+        }
         return (<React.Fragment key={Math.random()}>
-            {props.generatePlaces? <OctagonalModules.Place 
+            {props.generatePlaces ? <Place
                 dNone={false}
-                moduleKey={completeid+"."}
-            />:null}
-            <JsxParser
-                bindings={{
-                    moduleData: module.data,
-                    moduleChildComponents: module.components,
-                    moduleKey: completeid,
-                }}
-                renderInWrapper={false}
-                key={completeid}
-                components={{ OctagonalModules }}
-                jsx={`
-                    <OctagonalModules.${component} 
-                        ${(module.components !== undefined) ? 'components={moduleChildComponents}' : ""} 
-                        moduleKey={moduleKey} 
-                        fixed={fixedProp} 
-                        data={moduleData}
-                    />`}
-            />
+                moduleKey={completeid + "."}
+            /> : null}
+            {componentSelector[component]({
+                data: module.data,
+                components: module.components,
+                moduleKey: completeid,
+            })}
         </React.Fragment>)
     })
 
     let lastid = `${props.components.length + 1}`
-    if(props.parentIndex !== undefined) lastid = props.parentIndex + "-" + props.components.length
+    if (props.parentIndex !== undefined) lastid = props.parentIndex + "-" + props.components.length
     return <>
         {JSX}
-        {props.generatePlaces? <OctagonalModules.Place dNone={false} key={Math.random()} moduleKey={lastid+"."}/>:null}
+        {props.generatePlaces ? <Place dNone={false} key={Math.random()} moduleKey={lastid + "."} /> : null}
     </>
 }

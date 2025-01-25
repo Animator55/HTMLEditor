@@ -28,13 +28,13 @@ import React from "react"
 //       userOnly: true
 //     }
 // }
-export default function PopEditor ({PopEditorRef, confirm}: {PopEditorRef: any, confirm: Function}){
+export default function PopEditor({ PopEditorRef, confirm }: { PopEditorRef: any, confirm: Function }) {
     let Module = "Image"
     // PopEditorRef.selected !== undefined ? PopEditorRef.selected.title.split(" (")[0] : undefined 
 
-    const [editorState, setEditorState] = React.useState("")
+    const [editorState, setEditorState] = React.useState<string>("")
 
-    const Editor: {[key: string] : any} = {
+    const Editor: { [key: string]: any } = {
         // "Text" : <ReactQuill
         //     value={editorState} 
         //     onChange={setEditorState}
@@ -42,36 +42,40 @@ export default function PopEditor ({PopEditorRef, confirm}: {PopEditorRef: any, 
         //     modules={modules}
         // />,
         "Image": <section>
-            <div className="image-render" style={{maxHeight: "20rem", minHeight: "10rem"}} dangerouslySetInnerHTML={{__html: '<img src="'+editorState+'"></img>'}}></div>
+            <div className="image-render" style={{ maxHeight: "20rem", minHeight: "10rem" }} dangerouslySetInnerHTML={{ __html: '<img src="' + editorState + '"></img>' }}></div>
         </section>
     }
-    const toggleOpen = ()=>{
+    const toggleOpen = () => {
         let isVisible = !PopEditorRef.current.classList.contains("d-none")
         PopEditorRef.current.classList.toggle("d-none")
-        if(isVisible) {
+        if (isVisible) {
             confirm(editorState, Module)
         }
-        else setEditorState(() => {
-            console.log(PopEditorRef.selected.innerHTML)
-            if(PopEditorRef.selected !== undefined) {
-                Module = PopEditorRef.selected.title.split(" (")[0]
-                if(Module === "Text") return PopEditorRef.selected.innerHTML
-                else return PopEditorRef.selected.firstChild.src
+        else setEditorState((prev:string) => {
+            let elementRendered = document.querySelector(`.edit-screen [id="${PopEditorRef.current.dataset.selected}"]`) as HTMLDivElement
+            if (!elementRendered) return prev 
+            if (PopEditorRef.current.dataset.selected !== "undefined") {
+                Module = elementRendered.title.split(" (")[0]
+                let child = elementRendered.firstChild as HTMLImageElement
+                if (Module === "Text") return elementRendered.innerHTML
+                else return child.src
             }
+            return prev
         })
     }
 
-    return <div 
-        className="d-none form-background" 
-        onClick={(e)=>{
+    return <div
+        className="d-none form-background"
+        onClick={(e) => {
             let target = e.target as HTMLDivElement
-            if(target && target.classList.contains("form-background")) toggleOpen()}}
+            if (target && target.classList.contains("form-background")) toggleOpen()
+        }}
         ref={PopEditorRef}
     >
         <section className="form-pop-up">
             <nav className="form-top-bar">
                 <h1>{PopEditorRef?.selected?.title}</h1>
-                <FontAwesomeIcon icon={faXmarkCircle} size="xl" onClick={toggleOpen}/>
+                <FontAwesomeIcon icon={faXmarkCircle} size="xl" onClick={toggleOpen} />
             </nav>
             {Editor[Module]}
         </section>

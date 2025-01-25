@@ -7,13 +7,13 @@ import { faArrowRightToBracket, faBoxArchive, faFilePen, faPenToSquare, faWandMa
 import ComponentPicker from "./SideBar_Pages/ComponentPicker";
 import { moduleType } from "../vite-env";
 
-export default function EditorContainer ({Container, EditorRef, editor, Class, setSelected, setSelectedClass, selectedFonts}:
-    {Container: any, EditorRef:any, editor: moduleType, Class:any, setSelected: Function, setSelectedClass: Function, selectedFonts: any}
+export default function EditorContainer ({Container, EditorRef, editor, Class, setSelected, setSelectedClass}:
+    {Container: any, EditorRef:any, editor: moduleType, Class:any, setSelected: Function, setSelectedClass: Function}
 ){
     const [page, setPage] = React.useState("Editor")
 
     const resizeWidth = (e: React.MouseEvent) => {
-        if(!Container?.display) return
+        if(!Container.current || Container.current.dataset.display === "false") return
         e = e || window.event;
         e.preventDefault();
         let container = Container.current
@@ -65,46 +65,51 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
     }
 
     React.useEffect(()=>{
-        if(ClassSelected && Container["page"] !== "Class"){
-            Container["page"] = "Class"
-            setPage(Container["page"])
+        if(ClassSelected && Container.current && Container.current.dataset.page !== "Class"){
+            Container.current.dataset.page = "Class"
+            setPage("Class")
         }
     }, [Class])
 
     const changePage = (entry:string)=>{
-        Container["page"] = entry
-        if(!Container["display"]) {
-            Container["display"] = true; 
+        if(!Container.current) return
+        Container.current.dataset.page = entry
+        if(Container.current.dataset.display === "false") {
+            Container.current.dataset.display = "true"; 
             Container.current.classList.add("expanded")
         }
-        if(entry === "Editor" && EditorRef.selected !== undefined){ 
-            let key = EditorRef["selected"]?.id
-            let elementRendered = document.querySelector(`.edit-screen [id="${key}"]`)
+        if(entry === "Editor" && EditorRef.current && EditorRef.current.dataset.selected !== undefined){ 
+            let key = EditorRef.current.dataset.selected
+            let elementRendered = document.querySelector(`.edit-screen [id="${key}"]`) as HTMLDivElement
             if(!elementRendered) return
-            EditorRef["selected"] = elementRendered
-            elementRendered.setAttribute("select", "true")
-            document.querySelector(`.side-bar [id="${key}"]`)?.setAttribute("select", "true")
+            elementRendered.dataset.select= "true"
+            let sideTarget = document.querySelector(`.side-bar [id="${key}"]`) as HTMLDivElement
+            if(sideTarget)sideTarget.dataset.select= "true"
         }
-        setPage(Container["page"])
+        setPage(entry)
     }
 
     return <div 
         ref={Container} 
-        className={Container?.display ? "container-editors expanded" : "container-editors"}
+        data-display="false"
+        data-page="Editor"
+        className={Container.current?.dataset?.display === "true" ? "container-editors expanded" : "container-editors"}
         onClick={(e)=>{
+            if(!Container.current) return 
             let target = e.target as HTMLDivElement
             if(target && target.classList.contains("container-editors")) {
-                Container["display"] = true
+                Container.current.dataset.display = "true"
                 Container.current.classList.add("expanded")
-                setPage(Container["page"]); 
+                setPage(Container.current.dataset.page); 
             }}}
     >
         <section className="drag-zone left" onMouseDown={resizeWidth}></section>
         <nav>
             <button onClick={()=>{
-                Container["display"] = !Container["display"]
+                if(!Container.current) return 
+                Container.current.dataset.display = Container.current.dataset.display === "false" ? "true" : "false"
                 Container.current.classList.toggle("expanded")
-                if(!Container["display"]) Container.current.style.maxWidth = Container.current.style.minWidth = ""
+                if(Container.current.dataset.display === "false") Container.current.style.maxWidth = Container.current.style.minWidth = ""
             }}><FontAwesomeIcon icon={faArrowRightToBracket}/></button>
             {Object.keys(pages).map(entry=>{
                 return <button 
@@ -122,8 +127,6 @@ export default function EditorContainer ({Container, EditorRef, editor, Class, s
                 EditorRef={EditorRef}
                 editor={editor} 
                 setSelected={setSelected}
-                selectedFonts={selectedFonts}
-                DNone={page !== "Editor"}
             />
         </div>
     </div>

@@ -60,11 +60,11 @@ export default function RenderLevel(props: { refresh: Function, array: moduleTyp
 
     let idLocal = 0
     if(props.array
-    && props.array.length !== 0) props.array.map((el: moduleType | "placeholder", i: number) => { if (el === "placeholder") props.array!.splice(i, 1) })
+    && props.array.length !== 0) props.array.map((el: moduleType, i: number) => { if (el.type === "placeholder") props.array!.splice(i, 1) })
 
     let JSX = (props.array
-    && props.array.length !== 0) && props.array.map((component: moduleType | "placeholder") => {
-        if (component === "placeholder") return
+    && props.array.length !== 0) && props.array.map((component: moduleType) => {
+        if (component.type === "placeholder") return
         idLocal++
         let completeid = props.preRenderIndex !== undefined ? props.preRenderIndex : props.parentIndex !== undefined ? props.parentIndex + "-" + (idLocal - 1) : `${idLocal}`
         return (<React.Fragment key={Math.random()}>

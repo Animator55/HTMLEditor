@@ -4,7 +4,7 @@ import SideBar from "../components/SideBar";
 import "../assets/css/editor.css"
 import "../assets/css/adminEditor.css"
 import ComponentsRender from '../logic/jsxParser';
-import selectInJson, { JSONLocationSearch } from "../logic/jsonTreeSelector";
+import { JSONLocationSearch } from "../logic/jsonTreeSelector";
 import checkMoveToChild from "../logic/checkMoveToChild";
 import { templates } from "../RenderComponents/Templates";
 import * as api from "../logic/APIs"
@@ -70,7 +70,7 @@ export const GlobalFunctions = React.createContext<{
     cssNames: any
     selectedClass: any
     changeCss: any
-    mainFont: { font: string|undefined, setMainFont: Function }
+    mainFont: { font: string | undefined, setMainFont: Function }
 } | null>(null);
 
 let selected: any | undefined = undefined
@@ -105,21 +105,22 @@ export default function AdminEditor() {
             return { X: resultX, Y: resultY }
         }
         //querySelector can be replaced if "event.target" was in parameters, but not in json-tree
-        EditorRef["selected"] = e.target
-        EditorRef["selectedCoords"] = calcuteCoords()
-        if (!EditorRef.current || !AppCont.current) return
+        let target = e.target as HTMLDivElement
+        if (!EditorRef.current || !target) return
+        EditorRef.current.dataset.selected = target.id
+        EditorRef.current.dataset.selectedCoords = JSON.stringify(calcuteCoords())
+        if (!AppCont.current) return
         let button1 = EditorRef.current.firstChild as HTMLDivElement
         let button2 = AppCont.current.firstChild as HTMLDivElement
         button1.click()
         button2.click()
-        let target = e.target as HTMLDivElement
-        if (target) target.dataset.select = "true"
+        target.dataset.select = "true"
         let div = document.querySelector<HTMLDivElement>(`.side-bar [id="${key}"]`)
-        if(div) div.dataset.select = "true"
+        if (div) div.dataset.select = "true"
     }
 
     const setSelected = (key: string | undefined, e?: React.MouseEvent) => {
-        Container["page"] = "Editor"
+        if (Container.current) Container.current.dataset.page = "Editor"
         if (!EditorRef.current) return
         if (selected === undefined && key !== undefined && e) {
             EditorRef.current.classList.remove("d-none")
@@ -127,11 +128,13 @@ export default function AdminEditor() {
         }
         else if (key === undefined) {
             removeSelects()
-            EditorRef["selected"] = undefined
-            EditorRef["selectedCoords"] = undefined
+            EditorRef.current.dataset.selected = undefined
+            EditorRef.current.dataset.selectedCoords = undefined
             selected = key
-            Container["display"] = false
-            Container.current.classList.remove("expanded")
+            if (Container.current) {
+                Container.current.dataset.display = "false"
+                Container.current.classList.remove("expanded")
+            }
             activateRefresh(!refresh)
             return
         }
@@ -144,13 +147,13 @@ export default function AdminEditor() {
         if (!Container.current) return
         Container.current.click()
         selected = key
-        Container["display"] = true
+        Container.current.dataset.display = "true"
         Container.current.classList.add("expanded")
     }
 
     const setSelectedClass = (index: number | undefined) => {
-        if (index === undefined) {
-            Container.display = false
+        if (index === undefined && Container.current) {
+            Container.current.dataset.display = "false"
             Container.current.classList.remove("expanded")
         }
         setClass(index)
@@ -166,7 +169,7 @@ export default function AdminEditor() {
     else requestCounter = 0
 
     function handleSetSelected(e: React.MouseEvent, provinence: boolean) {
-        console.log(e,provinence)
+        console.log(e, provinence)
         //provinence: if(true) modules; else sidebar > jsontree || editor;
         let target = e.target as HTMLDivElement
         if (!target || target.id === undefined) return
@@ -210,21 +213,21 @@ export default function AdminEditor() {
             let parsedComponent = JSON.parse(newBlock)
             let Target = convertToSplit(target)
             let location = JSONLocationSearch(Target, JSONView)
-            location.splice(Target[Target.length - 1], 0, parsedComponent)
+            location.splice(parseInt(Target[Target.length - 1]), 0, parsedComponent)
             if (selected !== undefined) setSelected(undefined)
             else activateRefresh(!refresh)
         },
         delete: (target: string) => {
             let Target = convertToSplit(target)
             let location = JSONLocationSearch(Target, JSONView)
-            location.splice(Target[Target.length - 1], 1)
+            location.splice(parseInt(Target[Target.length - 1]), 1)
             if (selected !== undefined) setSelected(undefined)
             else activateRefresh(!refresh)
         },
         edit: (target: string, data: { data: any }) => {
             let Target = convertToSplit(target)
             let location = JSONLocationSearch(Target, JSONView)
-            Object.assign(location[Target[Target.length - 1]].data, data.data)
+            Object.assign(location[parseInt(Target[Target.length - 1])].data, data.data)
         }
     }
 
@@ -243,10 +246,10 @@ export default function AdminEditor() {
         let Target = convertToSplit(target)
 
         let sourceObj = JSONLocationSearch(Source, JSONView)
-        removedComponent = sourceObj.splice(Source[Source.length - 1], 1, "placeholder")
+        removedComponent = sourceObj.splice(parseInt(Source[Source.length - 1]), 1, { type: "placeholder", data: { className: "", style: {} } })
 
         let targetObj = JSONLocationSearch(Target, JSONView)
-        targetObj.splice(Target[Target.length - 1], 0, removedComponent[0])
+        targetObj.splice(parseInt(Target[Target.length - 1]), 0, removedComponent[0])
 
         if (selected !== undefined) setSelected(undefined)
         else activateRefresh(!refresh)
@@ -307,38 +310,44 @@ export default function AdminEditor() {
     // }
 
     const activatePopEditor = (e: React.MouseEvent) => {
-        PopEditorRef["selected"] = e.target
-        PopEditorRef?.current?.click()
+        let target = e.target as HTMLDivElement
+        if(!target || !PopEditorRef.current)return
+        PopEditorRef.current.dataset.selected = target.id
+        PopEditorRef.current.click()
     }
 
     const confirmPopEditor = (resultHTML: string, entry: string) => {
-        if (entry === "Text") PopEditorRef.selected.innerHTML = resultHTML
-        else PopEditorRef.selected.firstChild.src = resultHTML
-        let key = convertToSplit(PopEditorRef.selected.id)
+        if(!PopEditorRef.current || !PopEditorRef.current.dataset.selected || PopEditorRef.current.dataset.selected === "undefined") return 
+        let elementRendered = document.querySelector(`.edit-screen [id="${PopEditorRef.current.dataset.selected}"]`) as HTMLDivElement
+        if(!elementRendered) return
+        let child = elementRendered.firstChild as HTMLImageElement
+        if (entry === "Text") elementRendered.innerHTML = resultHTML
+        else child.src = resultHTML
+        let key = convertToSplit(PopEditorRef.current.dataset.selected)
         let location = JSONLocationSearch(key, JSONView)
-        //key
-        const keys: { [key: string]: string } = { "Text": "text", "Image": "src", "ProductsGrid": "src" }
         //change json
-        location[key[key.length - 1]].data[keys[entry]] = resultHTML
+        location[parseInt(key[key.length - 1])].data[entry === "Text" ? "text" : "src"] = resultHTML
         if (AppCont.current) AppCont.current.addEventListener("mouseenter", (e) => { activateDragPage(e, AppCont, zoomAction) }, { once: true })
         if (!EditorRef.current) return
         let firstChild = EditorRef.current.firstChild as HTMLDivElement
-        if(firstChild) firstChild.click()
+        if (firstChild) firstChild.click()
     }
 
     const Resize = (id: string, changes: { width: number, height: number }) => {
         let Target = convertToSplit(id)
         let location = JSONLocationSearch(Target, JSONView)
         let data = {
-            ...location[Target[Target.length - 1]].data,
+            ...location[parseInt(Target[Target.length - 1])].data,
             style: {
-                ...location[Target[Target.length - 1]].data.style,
+                ...location[parseInt(Target[Target.length - 1])].data.style,
                 width: changes.width,
                 height: changes.height
             }
         }
-        Object.assign(location[Target[Target.length - 1]].data, data)
-        EditorRef.selected.click()
+        Object.assign(location[parseInt(Target[Target.length - 1])].data, data)
+        if (!EditorRef.current || EditorRef.current.dataset.selected === "undefined") return
+        let elementRendered = document.querySelector(`.edit-screen [id="${EditorRef.current.dataset.selected}"]`) as HTMLDivElement
+        if (elementRendered) elementRendered.click()
     }
 
     const parseStylesArray = (array: any[]) => {
@@ -380,7 +389,7 @@ export default function AdminEditor() {
     return <div className="screen d-flex-col" >
         <GlobalFunctions.Provider value={{
             moveComponent: moveComponent,
-            JSONLocationSearch: (id: string) => { return JSONLocationSearch(id, JSONView) },//
+            JSONLocationSearch: (id: string[]) => { return JSONLocationSearch(id, JSONView) },//
             changeJSON: changeJSON,//
             activatePopEditor: activatePopEditor,
             selectComponent: handleSetSelected,
@@ -396,9 +405,9 @@ export default function AdminEditor() {
                     mode={"editor"}
                     JSONTree={JSONView}
                     selected={selected}
-                    createComponent={() => { 
-                        if(!Container.current) return
-                        Container["page"] = "Componentes"; Container.current.click() 
+                    createComponent={() => {
+                        if (!Container.current) return
+                        Container.current.dataset.page = "Componentes"; Container.current.click()
                     }}
                 />
                 <div className="app-cont" ref={AppCont}>
@@ -417,9 +426,9 @@ export default function AdminEditor() {
                     >
                         {css}
                         <div id="0"
-                            onDragStart={(e) => { 
+                            onDragStart={(e) => {
                                 let target = e.target as HTMLDivElement
-                                if(target)setDragging(target.dataset.type + "." + target.id) 
+                                if (target) setDragging(target.dataset.type + "." + target.id)
                             }}
                             onDragEnter={DragEnter}
                             onDragOver={(e) => { e.preventDefault() }}
@@ -430,7 +439,7 @@ export default function AdminEditor() {
                                 <ComponentsRender
                                     generatePlaces={AdminEditor}
                                     components={JSONView.content}
-                                    data={{className: "",style: {}}}
+                                    data={{ className: "", style: {} }}
                                 />}
                         </div>
                     </div>
@@ -442,7 +451,6 @@ export default function AdminEditor() {
                     Class={selectedClass}
                     setSelected={setSelected}
                     setSelectedClass={setSelectedClass}
-                    selectedFonts={customFontList}
                 />
             </div>
         </GlobalFunctions.Provider>
