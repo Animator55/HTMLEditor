@@ -1,0 +1,108 @@
+.side-bar {
+    height: 100dvh;
+    min-width: 215px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background-color: var(--clighter);
+    text-align: center;
+    border-bottom-right-radius: 20px;
+    box-sizing: border-box;
+    /* box-shadow: 0 9px 32px -6px var(--clight); */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    z-index: 3;
+}
+
+.side-bar-drag {
+    width: 5px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    cursor: e-resize;
+}
+
+.side-bar.edit {
+    min-width: 233px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    max-height: var(--app-height);
+}
+
+.side-bar.edit:not(.expanded) > .side-bar-drag {
+    display: none;
+}
+
+.side-bar.edit > .page-router {
+    flex-direction: row;
+}
+
+.side-bar span > :first-child {
+    user-select: none;
+}
+
+.side-bar-title {
+    margin: 0;
+    text-align: center;
+}
+
+.logo {
+    width: 55px;
+    min-height: 55px;
+    margin: 0 auto !important;
+}
+
+.side-bar.small .btn-expand:hover > :last-child{
+    display: none!important;
+}
+
+/*NEW SIDEBAR*/
+
+.side-bar.router {
+    height: auto;
+    min-width: 233px;
+    max-height: calc(100dvh - 73px);
+}
+
+.side-bar.router button {
+    color: var(--cpurple);
+    text-align: start;
+    border-radius: 20px;
+    padding: 0.4rem 0.5rem;
+    font-size: medium;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;    
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin-top: 4px;
+}
+
+.side-bar.router button:hover {
+    color: var(--cwhite);
+    overflow: initial;
+}
+
+.side-bar.router button.selected-page {
+    color: var(--cwhite);
+    background-color: #55016936;
+    overflow: initial;
+}
+
+.side-bar.router .span-column {
+    padding-left: 1rem;
+    background-color: transparent;
+}
+
+.side-bar.router span:has(.expanded) > :first-child,
+.side-bar.router span > :first-child:hover {
+    background-color: var(--cwhite);
+    color: var(--cpurple);
+}
+
+.side-bar.router span:has(.expanded) > :first-child:hover {
+    background-color: var(--cpurple2);
+    color: var(--cwhite);
+}

@@ -1,0 +1,50 @@
+.projects-screen {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.projects-screen nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    background-color: var(--clight);
+}
+
+.projects-screen .logout {
+    color: var(--cpurple);
+}
+
+.projects-screen > :last-child{
+    padding: 0px 10% 10%; 
+    height: 70vh;
+}
+
+.project-icon {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.project-icon > *:first-child {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 300ms;
+    background: var(--cpurple);
+    box-shadow: 0 0px 20px 0px var(--clight);
+}
+
+.project-plus-icon {
+    background: transparent!important;
+    border: 3px solid;
+}
+
+.project-icon:hover > *:first-child {
+    transform: scale(1.3);
+    box-shadow: 0 0px 0px 0px var(--clight);
+    transition: all 300ms;
+}

@@ -1,0 +1,151 @@
+.page {
+    max-height: 99vh;
+    overflow: hidden;
+    height: 99vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page > nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    background-color: var(--clight);
+}
+
+.page .logout {
+    color: var(--cpurple);
+}
+
+.slider-page {
+    overflow-x: hidden;
+    display: flex;
+    height: inherit;
+}
+
+.form-slider-container {
+    display: flex;
+    flex-direction: column;
+    height: 82%;
+    width: 100%;
+    margin: 30px;
+    box-shadow: 0px 0px 10px var(--clight);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.form-title {
+    margin: 0 auto 5%;
+    font-size: 3rem;
+}
+
+.form-slider-container > section {
+    margin: 6px 15%;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-slider-container > section > ul {
+    padding-left: 0px;
+    font-size: 1.5rem;
+}
+
+.form-slider-container > section > ul > * {
+    margin-top: 8px;
+}
+
+.pagination {
+    position: absolute;
+    width: 80%;
+    left: 10%;
+    bottom: 10%;
+    display: flex;
+}
+
+.pagination > :first-child {
+    margin-right: auto;
+}
+
+.pagination-btn {
+    border-radius: 50%;
+    border: 5px solid;
+    position: relative;
+    background-color: var(--cblue);
+    color: var(--cwhite);
+    transition: all 300ms;
+    cursor: pointer;
+    padding: 7px;
+    width: 100px;
+    height: 100px;
+    font-size: larger;
+}
+
+.pagination-btn.disable {
+    opacity: 0.5
+}
+
+.pagination-btn:not(.disable):hover {
+    background-color: var(--cpurple);
+    box-shadow: 0px 0px 20px var(--cblack);
+    color: var(--cblack)
+}
+
+.pagination-btn::after {
+    content: "";
+    position: absolute;
+    border: 40px solid transparent;
+    transition: all 300ms;
+    border-radius: 50%;
+    inset: 0;
+}
+
+.pagination-btn:not(.disable):hover::after {
+    border: 0px solid var(--cwhite);
+    transition: all 300ms;
+}
+
+.skip-btn {
+    text-decoration: underline;
+    background-color: transparent;
+    color: var(--cpurple);
+    opacity: 0.7;
+}
+
+.skip-btn:hover {
+    background: none;
+    transform: scale(1.3);
+    opacity: 1;
+}
+
+/*ANIMATION*/
+
+
+@keyframes slide-from-right {
+    from {
+        transform: translateX(800px);
+    }
+    to {
+        transform: translateX(0px);       
+        opacity: 1;
+    }
+}
+
+@keyframes slide-from-left {
+    from {
+        transform: translateX(-800px);
+    }
+    to {
+        transform: translateX(0px);        
+        opacity: 1;
+    }
+}
+
+.slide-from-right {
+    animation: slide-from-right 800ms ease 0.1s forwards; 
+    opacity: 0;
+}
+.slide-from-left {
+    animation: slide-from-left 800ms ease 0.1s forwards;
+    opacity: 0;
+}

@@ -1,0 +1,83 @@
+.edit-class ul {
+    display: flex;
+    padding-left: 0px;
+    margin: 8px 12px;
+    gap: 8px;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+ul > .style-chip:last-child input, ul > .style-chip:last-child div {
+    opacity: 0.4;
+}
+
+ul > .style-chip:last-child:hover input,
+ul > .style-chip:last-child:hover div,
+ul > .style-chip:last-child input:focus, 
+ul > .style-chip:last-child div:focus {
+    opacity: 1;
+}
+
+.style-chip {
+    display: flex;
+    gap: 10px;
+    padding: 6px 10px;
+}
+
+.style-chip input, .style-chip div{
+    border: none;
+    width: 100%;
+    margin: 0;
+    padding: 5px;
+    background-color: var(--clighter);
+}
+
+.style-chip [contenteditable=true], .style-chip [contenteditable=true]:focus, .class-input, .class-input:focus {
+    border: none;
+    text-align: left;
+    color: initial;
+    font-size: small;
+    position: relative;
+    overflow: hidden;
+}
+
+.style-chip [contenteditable=true]:focus, .class-input:focus {
+    font-style: italic;
+}
+
+.style-chip [contenteditable=true]:empty:after, .class-input:empty:after {
+    content: attr(data-placeholder);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.style-chip [contenteditable=true]:focus::before, .class-input:focus::before  {
+    content: attr(data-autocomplete);
+    position: absolute;
+    opacity: 0.5;
+    pointer-events: none;
+    text-overflow: ellipsis;
+}
+
+.style-chip [contenteditable=true]:empty:before, .class-input:empty:before {
+    content: "";
+}
+
+.style-chip input:hover, .style-chip div:hover {
+    background-color: var(--cwhite);
+}
+
+.class-input {
+    background-color: var(--cwhite);
+    border: 2px solid var(--cdeep)!important;
+    padding-left: 1rem;
+    border-radius: 5px;
+}
+
+.switch-display {
+    min-width: 4rem;
+    max-width: 4rem;
+    border: 2px solid var(--cdeep);
+    border-radius: 4px;
+    margin-left: 1rem;
+}

@@ -1,0 +1,174 @@
+.pop-up-background, .form-background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0!important;
+    position: fixed;
+    z-index: 5;
+    inset: 0;
+    background-color: rgba(0,0,0,0.3);
+}
+
+.pop-up {
+    margin: auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--cwhite);
+    border-radius: 10px;
+    box-shadow: 0 9px 32px -6px var(--cdeep);
+    padding: 5px;
+}
+
+.pop-up > *:first-child {
+    background-color: var(--cpurple);
+    color: var(--cwhite);
+    margin: 0;
+    border-radius: 10px 10px 0 0;
+    padding: 15px 20px 5px;
+}
+
+.pop-up > *:last-child {
+    padding: 5px;
+}
+
+.pop-up-btns {
+    display: flex;
+}
+
+/*PROGRESS*/
+
+.pop-up-background {
+    animation: pop-up-background 5s forwards
+}
+.form-background {
+    animation: pop-up-background-open 0.2s forwards
+}
+
+.progress-bar {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    background-color: var(--cwhite);
+    border-radius: 10px;
+    box-shadow: 0 9px 32px -6px var(--cdeep);
+    padding: 1%;
+    width: 50%;
+    height: 7%;
+}
+
+.form-background > :first-child {
+    transform: scale(0);
+    animation: pop-up-open 0.2s 0.1s ease-out forwards;
+}
+
+.form-background > :first-child > *:not(:first-child){
+    opacity: 0;
+    animation: pop-up-background-open 0.2s .3s forwards
+}
+
+.progress {
+    width: 100%;
+    height: 60%;
+    background-color: #0000002f;
+    border-radius: 15px;
+    padding: 1%;
+    position: relative;
+}
+
+.progress > span {    
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    height: 50%;
+    border-radius: 15px;
+    background-color: #3ca33c;
+    margin: auto;
+    width: 0%;
+    animation: progress 3s cubic-bezier(0.02, 0.27, 0, 0.96) 1s forwards;
+}
+
+.progress > span::after {
+    content: "";
+    box-sizing: border-box;
+    inset: 0;
+    position: absolute;
+    background: repeating-linear-gradient(90deg, var(--cwhite), transparent 1%, var(--cwhite) 5%);
+    background-size: 300% 100%;
+    animation: styleprogress 3s linear infinite;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+@keyframes pop-up-background {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90%{
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes pop-up-progress-bar {
+    0% {
+        transform: scale(0);
+    }
+    10% {
+        transform: scale(1);
+    }
+    90%{
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
+@keyframes pop-up-background-open {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes pop-up-open {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+    60% {
+        width: 70%;
+    }
+    67% {
+        width: 78%;
+    }
+    100% {
+        width: 98%;
+    }
+}
+
+
+@keyframes styleprogress {
+    0%{background-position:50% 50%}
+    100%{background-position:90% 50%}
+}
