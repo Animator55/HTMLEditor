@@ -8,7 +8,7 @@ export default function activateDragPage (e: MouseEvent, AppCont: any, zoomActio
     }
     
     function KeyDown (e: KeyboardEvent){
-        if(!AppCont.current.childNodes[3].classList.contains("d-none")) return
+        if(!AppCont.current.childNodes[3].classList.contains("d-none") || document.querySelector(`.edit-screen [data-select="true"]`)) return
         if(e.code === "Space") {
             e.preventDefault()
             document.body.style.cursor = "-webkit-grabbing"

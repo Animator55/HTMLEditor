@@ -143,14 +143,14 @@ export const Text = (props: moduleType) => {
         data-text="Escribe aquí"
         data-type="module"
         title={"Text (" + props.moduleKey + ")"}
-        // onKeyDown={async(e)=>{
-        //     if(e.key === "Enter") {
-        //         let styles = SubmitEdit(e.target.firstChild.style)
-        //         await setState({data: {...state.data, text: e.target.innerText, style: {...state.data.style, ...styles}}}); 
-        //         context.changeJSON.edit(props.moduleKey, state)
-        //     }
-        // }} 
-        // contentEditable="true"
+        onKeyDown={(e)=>{
+            if(e.key === "Enter" && !e.shiftKey && context) {
+                e.preventDefault()
+                let target = e.target as HTMLDivElement
+                context.changeJSON.edit(props.moduleKey, {...props, data: {...props.data, text: target.innerText}})
+            }
+        }} 
+        contentEditable="true"
         draggable={"true"}
         onDragStart={DragStart}
         onDragEnd={(e) => {
@@ -161,13 +161,12 @@ export const Text = (props: moduleType) => {
         style={props.data.style}
         onClick={(e) => {
             let target = e.target as HTMLDivElement
-            console.log(target && target.id === props.moduleKey && context, e)
             if (target && target.id === props.moduleKey && context) context.selectComponent(e, true)
         }}
-        onDoubleClick={(e) => {
-            let target = e.target as HTMLDivElement
-            if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
-        }}
+        // onDoubleClick={(e) => {
+        //     let target = e.target as HTMLDivElement
+        //     if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
+        // }}
         dangerouslySetInnerHTML={{ __html: switchTags(createTextHTML(state.data.text!, props.data.type!), state.fastEditor) }}
         id={props.moduleKey}>
     </div>
@@ -192,10 +191,10 @@ export const Image = (props: moduleType) => {
                 let target = e.target as HTMLDivElement
                 if (target && target.id === props.moduleKey && context) context.selectComponent(e, true)
             }}
-            onDoubleClick={(e) => {
-                let target = e.target as HTMLDivElement
-                if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
-            }}
+            // onDoubleClick={(e) => {
+            //     let target = e.target as HTMLDivElement
+            //     if (target && target.id === props.moduleKey && context) context.activatePopEditor(e)
+            // }}
         >
             <img src={props.data.src}></img>
         </div>
