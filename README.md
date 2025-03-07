@@ -1,50 +1,61 @@
-# React + TypeScript + Vite
+# README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a React + TypeScript + Vite project for an HTML editor.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   A minimal setup to get React working in Vite with HMR and some ESLint rules.
+*   Support for TypeScript and React.
+*   A basic HTML editor with drag-and-drop functionality.
+*   A sidebar with a JSON tree view of the editor's content.
+*   A container for editing components.
+*   Support for adding and deleting components.
+*   Support for editing component styles and text content.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+To install the project, run the following command:
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Running the Project
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+To run the project, use the following command:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+This will start the development server, and you can access the project at `http://localhost:3000`.
+
+## Building the Project
+
+To build the project, use the following command:
+
+```bash
+npm run build
+```
+
+This will create a production-ready build of the project in the `dist` directory.
+
+## Linting
+
+To lint the project, use the following command:
+
+```bash
+npm run lint
+```
+
+This will run ESLint on the project and report any errors or warnings.
+
+## Preview
+
+To preview the built project, use the following command:
+
+```bash
+npm run preview
+```
+
+This will start a server and open the built project in your default browser.
